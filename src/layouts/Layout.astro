@@ -13,6 +13,7 @@ const ogImage = image ?? `${import.meta.env.SITE_URL ?? 'https://eobdecoder.com'
 const paddleClientToken = import.meta.env.PADDLE_CLIENT_TOKEN ?? 'test_251f58a7eb4defd755ce96bf2ae';
 const paddlePriceId = import.meta.env.PADDLE_PRICE_ID ?? 'pri_01kxk93szzx7sxvk3emdsw6cqv';
 const paddleEnv = import.meta.env.PADDLE_ENV ?? 'sandbox';
+const siteUrl = import.meta.env.SITE_URL ?? 'https://eobdecoder.com';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -118,7 +119,7 @@ const paddleEnv = import.meta.env.PADDLE_ENV ?? 'sandbox';
   </script>
 
   <!-- Paddle initialization + overlay checkout interceptor -->
-  <script define:vars={{ paddleClientToken, paddlePriceId, paddleEnv }}>
+  <script define:vars={{ paddleClientToken, paddlePriceId, paddleEnv, siteUrl }}>
     (function initPaddle() {
       if (typeof window.Paddle === 'undefined') {
         // Paddle.js not yet loaded — retry once on load
@@ -138,9 +139,9 @@ const paddleEnv = import.meta.env.PADDLE_ENV ?? 'sandbox';
         window.Paddle.Checkout.open({
           items: [{ priceId: paddlePriceId, quantity: 1 }],
           settings: {
+            successUrl: siteUrl + '/success',
             displayMode: 'overlay',
             theme: 'light',
-            locale: 'en',
           },
         });
       });
