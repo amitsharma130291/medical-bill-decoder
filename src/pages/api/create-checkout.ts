@@ -1,26 +1,10 @@
 import type { APIRoute } from 'astro';
-import { lemonSqueezySetup, createCheckout } from '@lemonsqueezy/lemonsqueezy.js';
 
-export const POST: APIRoute = async ({ request, redirect }) => {
-  lemonSqueezySetup({ apiKey: import.meta.env.LEMONSQUEEZY_API_KEY });
-
-  const checkout = await createCheckout(
-    import.meta.env.LEMONSQUEEZY_STORE_ID,
-    import.meta.env.LEMONSQUEEZY_VARIANT_ID,
-    {
-      checkoutOptions: { embed: false, media: true, logo: true },
-      checkoutData: { custom: { source: 'medical-bill-decoder' } },
-      productOptions: {
-        redirectUrl: `${import.meta.env.SITE_URL}/success`,
-        receiptButtonText: 'Go to Dashboard',
-        receiptThankYouNote: 'Thank you! You now have full access to all dispute tools.',
-      },
-    }
-  );
-
-  const url = checkout.data?.data?.attributes?.url;
-  if (!url) {
-    return new Response(JSON.stringify({ error: 'Failed to create checkout' }), { status: 500 });
-  }
-  return redirect(url, 302);
+// Returns the Paddle price ID so the client-side overlay checkout can open it
+export const GET: APIRoute = async () => {
+  const priceId = import.meta.env.PADDLE_PRICE_ID ?? 'pri_01kxk93szzx7sxvk3emdsw6cqv';
+  return new Response(JSON.stringify({ priceId }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
 };
