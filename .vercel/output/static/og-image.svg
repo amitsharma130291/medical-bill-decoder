@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0F7B8C"/>
+  <text x="100" y="260" font-family="system-ui, sans-serif" font-size="72" font-weight="700" fill="white">Medical Bill Decoder</text>
+  <text x="100" y="360" font-family="system-ui, sans-serif" font-size="36" fill="#e2f7f9">Understand it. Dispute it. Free.</text>
+  <text x="100" y="430" font-family="system-ui, sans-serif" font-size="28" fill="#b2e8ed">EOB Decoder · Dispute Letter Generator · Billing Error Checklist</text>
+</svg>

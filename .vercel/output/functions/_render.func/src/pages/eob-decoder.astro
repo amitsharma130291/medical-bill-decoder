@@ -1,0 +1,78 @@
+---
+import Layout from '../layouts/Layout.astro';
+import EobDecoder from '../components/EobDecoder.tsx';
+
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Decode Your Explanation of Benefits (EOB)",
+  "description": "Use AI to decode confusing medical EOB documents into plain English.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Copy your EOB text",
+      "text": "Open your Explanation of Benefits from your insurance company and copy the relevant sections."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Paste into the decoder",
+      "text": "Paste the EOB text into the decoder field below."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Get your plain-English explanation",
+      "text": "Click 'Decode My EOB' to receive a clear explanation of what you owe and why."
+    }
+  ]
+};
+---
+<Layout title="EOB Decoder — Decode Your Explanation of Benefits" description="Paste your EOB text and get a plain-English explanation of what you actually owe. Free AI-powered medical bill decoder — 3 free uses per day.">
+
+  <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+
+  <!-- Hero -->
+  <section style="background: linear-gradient(135deg, #0F7B8C 0%, #2D4A7A 100%);" class="text-white py-14 px-4">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="font-bold mb-4" style="font-size: 36px;">EOB Decoder</h1>
+      <p class="text-blue-100" style="font-size: 18px; line-height: 1.6;">Paste your Explanation of Benefits and get a plain-English breakdown of what you owe and why. Powered by GPT-4o.</p>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="py-12 px-4">
+    <div class="max-w-3xl mx-auto">
+      <EobDecoder client:load />
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-12 px-4 bg-white border-t border-[#E2E8F0]">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-semibold text-center mb-10 text-[#1A2332]" style="font-size: 28px;">How It Works</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #D0EFF3;">
+            <span class="text-[#0F7B8C] font-bold text-lg">1</span>
+          </div>
+          <h3 class="font-semibold mb-2 text-[#1A2332]" style="font-size: 16px;">Copy your EOB</h3>
+          <p class="text-[#64748B] text-sm leading-relaxed">Open your EOB from your insurance portal or paper mail and copy the text.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #D0EFF3;">
+            <span class="text-[#0F7B8C] font-bold text-lg">2</span>
+          </div>
+          <h3 class="font-semibold mb-2 text-[#1A2332]" style="font-size: 16px;">Paste and decode</h3>
+          <p class="text-[#64748B] text-sm leading-relaxed">Paste the text below and click "Decode My EOB."</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #D0EFF3;">
+            <span class="text-[#0F7B8C] font-bold text-lg">3</span>
+          </div>
+          <h3 class="font-semibold mb-2 text-[#1A2332]" style="font-size: 16px;">Understand your bill</h3>
+          <p class="text-[#64748B] text-sm leading-relaxed">Get a clear explanation and next steps if you spot potential errors.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
