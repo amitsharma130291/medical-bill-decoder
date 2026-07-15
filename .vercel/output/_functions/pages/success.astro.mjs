@@ -1,10 +1,10 @@
 /* empty css                                          */
 import { b as createAstro, c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_C3ATigc7.mjs';
 import 'piccolore';
-import { $ as $$Layout } from '../chunks/Layout_dExX_k1h.mjs';
+import { $ as $$Layout } from '../chunks/Layout_QjW8KUyF.mjs';
 export { renderers } from '../renderers.mjs';
 
-const $$Astro = createAstro("https://medical-bill-decoder.vercel.app");
+const $$Astro = createAstro("https://eobdecoder.com");
 const $$Success = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Success;
