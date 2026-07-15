@@ -6,7 +6,7 @@ import mdx from '@astrojs/mdx';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://medical-bill-decoder.vercel.app',
+  site: 'https://eobdecoder.com',
   output: 'server',
   adapter: vercel(),
   integrations: [

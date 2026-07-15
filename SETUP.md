@@ -7,7 +7,7 @@
 4. Note your Store ID (from the store URL) and Variant ID (from the product variant)
 5. Get your API key: Settings → API → Create API Key
 6. Set Vercel env vars: LEMONSQUEEZY_API_KEY, LEMONSQUEEZY_STORE_ID, LEMONSQUEEZY_VARIANT_ID, SITE_URL
-7. In LemonSqueezy dashboard: Settings → Webhooks → Add endpoint: https://your-domain.com/api/webhooks/lemonsqueezy
+7. In LemonSqueezy dashboard: Settings → Webhooks → Add endpoint: https://eobdecoder.com/api/webhooks/lemonsqueezy
    - Events to subscribe: order_created
    - Copy the signing secret → set as LEMONSQUEEZY_WEBHOOK_SECRET
 
