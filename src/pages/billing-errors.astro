@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ErrorChecklist from '../components/ErrorChecklist.tsx';
+
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Check for Medical Billing Errors",
+  "description": "Use our 15-point checklist to identify common medical billing errors in your bill.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Get your itemized bill",
+      "text": "Request a complete itemized bill from your provider if you don't already have one."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Go through the checklist",
+      "text": "Check each of the 15 common billing errors against your bill."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Take action on errors found",
+      "text": "For each error found, use our Dispute Letter Generator to contest the charge."
+    }
+  ]
+};
+---
+<Layout title="Medical Billing Error Checklist — 15 Common Errors" description="Check your medical bill against 15 common billing errors. Find overcharges in minutes with this free interactive checklist.">
+
+  <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+
+  <!-- Hero -->
+  <section style="background: linear-gradient(135deg, #0F7B8C 0%, #2D4A7A 100%);" class="text-white py-14 px-4">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="font-bold mb-4" style="font-size: 36px;">Billing Error Checklist</h1>
+      <p class="text-blue-100" style="font-size: 18px; line-height: 1.6;">80% of medical bills contain errors. Check yours against the 15 most common billing mistakes. Completely free.</p>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="py-12 px-4">
+    <div class="max-w-2xl mx-auto">
+      <ErrorChecklist client:load />
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-12 px-4 bg-white border-t border-[#E2E8F0]">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="font-semibold mb-4 text-[#1A2332]" style="font-size: 28px;">Found an Error? Generate a Dispute Letter</h2>
+      <p class="text-[#64748B] mb-8" style="font-size: 16px; line-height: 1.6;">Our dispute letter generator creates a professional letter you can send to contest billing errors.</p>
+      <a href="/dispute-letter" class="inline-block text-white font-bold px-8 py-4 rounded-xl transition-colors" style="background-color: #E8A020; color: #1A2332;"
+        onmouseover="this.style.backgroundColor='#D4901A'" onmouseout="this.style.backgroundColor='#E8A020'">
+        Generate Dispute Letter →
+      </a>
+    </div>
+  </section>
+
+</Layout>
