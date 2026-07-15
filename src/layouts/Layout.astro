@@ -2,10 +2,13 @@
 export interface Props {
   title: string;
   description?: string;
+  image?: string;
+  canonicalUrl?: string;
 }
 
-const { title, description = 'Decode your medical bills, dispute errors, and fight back against overcharges with free AI-powered tools.' } = Astro.props;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { title, description = 'Decode your medical bills, dispute errors, and fight back against overcharges with free AI-powered tools.', image, canonicalUrl } = Astro.props;
+const canonicalURL = canonicalUrl ?? new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = image ?? `${import.meta.env.SITE_URL ?? 'https://medicalbilldecoder.com'}/og-image.svg`;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -14,9 +17,24 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
+  <meta name="robots" content="index, follow" />
   <title>{title} | Medical Bill Decoder</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Medical Bill Decoder" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={ogImage} />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
 </head>
 <body class="min-h-screen font-sans text-ink" style="background-color: #F7F8FA;">
 
