@@ -4,17 +4,17 @@
     "states": {
       "type": "object",
       "properties": {
-        "state": {
-          "type": "string"
-        },
-        "stateCode": {
-          "type": "string"
-        },
         "title": {
           "type": "string"
         },
         "description": {
           "type": "string"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "publishedAt": {
           "anyOf": [
@@ -37,8 +37,6 @@
         }
       },
       "required": [
-        "state",
-        "stateCode",
         "title",
         "description"
       ],

@@ -3,9 +3,9 @@ import { defineCollection, z } from 'astro:content';
 const glossaryCollection = defineCollection({
   type: 'content',
   schema: z.object({
-    term: z.string(),
-    definition: z.string(),
-    relatedTerms: z.array(z.string()).optional(),
+    title: z.string(),
+    description: z.string(),
+    keywords: z.array(z.string()).optional(),
     publishedAt: z.date().optional(),
   }),
 });
@@ -15,6 +15,7 @@ const guidesCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    keywords: z.array(z.string()).optional(),
     publishedAt: z.date().optional(),
     updatedAt: z.date().optional(),
   }),
@@ -23,10 +24,9 @@ const guidesCollection = defineCollection({
 const statesCollection = defineCollection({
   type: 'content',
   schema: z.object({
-    state: z.string(),
-    stateCode: z.string(),
     title: z.string(),
     description: z.string(),
+    keywords: z.array(z.string()).optional(),
     publishedAt: z.date().optional(),
   }),
 });

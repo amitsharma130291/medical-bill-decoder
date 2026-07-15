@@ -4,13 +4,13 @@
     "glossary": {
       "type": "object",
       "properties": {
-        "term": {
+        "title": {
           "type": "string"
         },
-        "definition": {
+        "description": {
           "type": "string"
         },
-        "relatedTerms": {
+        "keywords": {
           "type": "array",
           "items": {
             "type": "string"
@@ -37,8 +37,8 @@
         }
       },
       "required": [
-        "term",
-        "definition"
+        "title",
+        "description"
       ],
       "additionalProperties": false
     }

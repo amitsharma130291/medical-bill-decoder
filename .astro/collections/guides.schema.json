@@ -10,6 +10,12 @@
         "description": {
           "type": "string"
         },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "publishedAt": {
           "anyOf": [
             {
