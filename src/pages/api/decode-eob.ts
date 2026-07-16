@@ -2,10 +2,16 @@ import type { APIRoute } from 'astro';
 import OpenAI from 'openai';
 
 const DAILY_LIMIT = 3;
+const PAID_DAILY_LIMIT = 20;
 
 function getTodayKey() {
   const d = new Date();
   return `eob_count_${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getPaidTodayKey() {
+  const d = new Date();
+  return `eob_paid_count_${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function parseCookies(cookieHeader: string | null): Record<string, string> {
@@ -39,7 +45,16 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!isPaid && count >= DAILY_LIMIT) {
       return new Response(
-        JSON.stringify({ error: 'Daily limit reached. Upgrade to the Complete Dispute Kit for unlimited access.' }),
+        JSON.stringify({ error: 'Daily limit reached. Upgrade to the Complete Dispute Kit for up to 20 decodes per day.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const paidKey = getPaidTodayKey();
+    const paidCount = parseInt(cookies[paidKey] || '0', 10);
+    if (isPaid && paidCount >= PAID_DAILY_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight. Thank you for using the Complete Dispute Kit!' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -83,11 +98,15 @@ Keep your response helpful but brief. Mention that the Complete Dispute Kit (upg
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
+    const setCookies = isPaid
+      ? `${paidKey}=${paidCount + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`
+      : `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
+
     return new Response(JSON.stringify({ result }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Set-Cookie': `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`,
+        'Set-Cookie': setCookies,
       },
     });
   } catch (err: any) {

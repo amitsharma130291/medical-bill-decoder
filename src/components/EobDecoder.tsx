@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { marked } from 'marked';
 
 const TEAL = '#0F7B8C';
 const BLUE = '#2D4A7A';
@@ -50,7 +51,7 @@ export default function EobDecoder() {
   async function handleDecode() {
     if (!text.trim()) { setError('Please paste your EOB text first.'); return; }
     if (blocked) {
-      setError(`You've used all ${FREE_LIMIT} free decodes for today. Upgrade to the Complete Dispute Kit for unlimited access.`);
+      setError(`You've used all ${FREE_LIMIT} free decodes for today. Upgrade to the Complete Dispute Kit for up to 20 decodes per day.`);
       return;
     }
     setLoading(true); setError(''); setResult('');
@@ -63,7 +64,7 @@ export default function EobDecoder() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setError(res.status === 429
-          ? 'Daily limit reached. Upgrade to the Complete Dispute Kit for unlimited access.'
+          ? 'Daily limit reached. Upgrade to the Complete Dispute Kit for up to 20 decodes per day.'
           : data.error || 'Something went wrong. Please try again.');
         return;
       }
@@ -88,7 +89,7 @@ export default function EobDecoder() {
           </svg>
           <p style={{ fontSize: 14, color: INK, margin: 0 }}>
             <strong>Free tier:</strong> {Math.max(0, FREE_LIMIT - count)} of {FREE_LIMIT} daily decodes remaining.{' '}
-            <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline', fontWeight: 500 }}>Upgrade for unlimited access →</a>
+            <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline', fontWeight: 500 }}>Upgrade for up to 20 per day →</a>
           </p>
         </div>
       )}
@@ -96,7 +97,7 @@ export default function EobDecoder() {
       {paid && (
         <div style={{ background: '#DCFCE7', border: '1px solid #86EFAC', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ color: SUCCESS, fontSize: 18 }}>✓</span>
-          <p style={{ fontSize: 14, color: '#14532D', margin: 0 }}><strong>Complete Dispute Kit active</strong> — unlimited decodes + full dispute guidance.</p>
+          <p style={{ fontSize: 14, color: '#14532D', margin: 0 }}><strong>Complete Dispute Kit active</strong> — up to 20 decodes per day + full dispute guidance.</p>
         </div>
       )}
 
@@ -178,13 +179,13 @@ export default function EobDecoder() {
             </svg>
             Your EOB Explained
           </h2>
-          <div style={{ fontSize: 15, color: INK, lineHeight: 1.7, whiteSpace: 'pre-wrap', fontFamily: 'DM Sans, sans-serif' }}>{result}</div>
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: marked(result) as string }} />
 
           {!paid && (
             <div style={{ marginTop: 24, padding: '20px', background: '#EFF9FA', border: `1px solid ${BORDER}`, borderRadius: '12px' }}>
               <p style={{ fontSize: 14, fontWeight: 600, color: INK, margin: '0 0 6px' }}>Want full dispute guidance?</p>
               <p style={{ fontSize: 13, color: MUTED, margin: '0 0 14px', lineHeight: 1.5 }}>
-                The Complete Dispute Kit includes step-by-step dispute instructions, state-specific guides, and unlimited decodes.
+                The Complete Dispute Kit includes step-by-step dispute instructions, state-specific guides, and up to 20 decodes per day.
               </p>
               <a href="/api/create-checkout" style={{
                 display: 'inline-block', background: AMBER, color: INK,

@@ -21,6 +21,8 @@ const US_STATES = [
   'Wisconsin','Wyoming',
 ];
 
+const PAID_LETTER_LIMIT = 20;
+
 function isPaid(): boolean {
   if (typeof document === 'undefined') return false;
   return document.cookie.includes('paid=true');
@@ -31,6 +33,14 @@ function hasUsedFreeLetter(): boolean {
 }
 function markLetterUsed() {
   if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('dispute_letter_used', 'true');
+}
+function getPaidLetterCount(): number {
+  if (typeof localStorage === 'undefined') return 0;
+  return parseInt(localStorage.getItem('paid_letter_count') || '0', 10);
+}
+function incrementPaidLetterCount() {
+  if (typeof localStorage === 'undefined') return;
+  localStorage.setItem('paid_letter_count', String(getPaidLetterCount() + 1));
 }
 
 function generateLetter(f: { patientName: string; providerName: string; billDate: string; disputeReason: string; state: string }) {
@@ -101,7 +111,9 @@ export default function DisputeLetter() {
 
   const paid = isPaid();
   const alreadyUsed = hasUsedFreeLetter();
-  const blocked = !paid && alreadyUsed;
+  const paidLetterCount = getPaidLetterCount();
+  const paidLetterBlocked = paid && paidLetterCount >= PAID_LETTER_LIMIT;
+  const blocked = (!paid && alreadyUsed) || paidLetterBlocked;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setFields(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -112,12 +124,16 @@ export default function DisputeLetter() {
     if (!patientName || !providerName || !billDate || !disputeReason || !state) {
       setError('Please fill in all 5 fields before generating your letter.'); return;
     }
-    if (blocked) {
-      setError('You have already generated 1 free dispute letter this session. Upgrade for unlimited letters.'); return;
+    if (!paid && alreadyUsed) {
+      setError('You have already generated 1 free dispute letter this session. Upgrade for up to 20 letters.'); return;
+    }
+    if (paidLetterBlocked) {
+      setError(`You have reached your limit of ${PAID_LETTER_LIMIT} dispute letters. Thank you for using the Complete Dispute Kit!`); return;
     }
     setError('');
     setLetter(generateLetter(fields));
     if (!paid) markLetterUsed();
+    if (paid) incrementPaidLetterCount();
   }
 
   function handleCopy() {
@@ -149,8 +165,8 @@ export default function DisputeLetter() {
           </svg>
           <p style={{ fontSize: 13, color: INK, margin: 0 }}>
             {alreadyUsed
-              ? <>Free letter used. <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($19)</a> for unlimited letters.</>
-              : <><strong>Free tier:</strong> 1 dispute letter per session. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for unlimited →</a></>
+              ? <>Free letter used. <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($19)</a> for up to 20 letters per day.</>
+              : <><strong>Free tier:</strong> 1 dispute letter per session. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for up to 20 letters →</a></>
             }
           </p>
         </div>
