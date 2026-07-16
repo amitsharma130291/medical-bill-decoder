@@ -135,31 +135,35 @@ const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
     paddlePriceId: import.meta.env.PADDLE_PRICE_ID ?? 'pri_01kxk93szzx7sxvk3emdsw6cqv',
     siteUrl: import.meta.env.SITE_URL ?? 'https://eobdecoder.com'
   }}>
-    Paddle.Environment.set(paddleEnv);
-    Paddle.Initialize({
-      token: paddleToken,
-      eventCallback: function(data) {
-        if (data.name === 'checkout.completed') {
-          // Set paid cookie (30 days)
-          var expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
-          document.cookie = 'mbd_paid=1; path=/; expires=' + expires + '; SameSite=Lax';
-          window.location.href = siteUrl + '/success';
-        }
-      }
-    });
-
-    // Intercept all links pointing to /api/create-checkout
-    document.addEventListener('click', function(e) {
-      var anchor = e.target.closest('a[href="/api/create-checkout"]');
-      if (!anchor) return;
-      e.preventDefault();
-      Paddle.Checkout.open({
-        items: [{ priceId: paddlePriceId, quantity: 1 }],
-        settings: {
-          successUrl: siteUrl + '/success'
+    // Initialize Paddle
+    function initPaddle() {
+      if (typeof Paddle === 'undefined') return;
+      if (paddleEnv === 'sandbox') Paddle.Environment.set('sandbox');
+      Paddle.Initialize({
+        token: paddleToken,
+        eventCallback: function(data) {
+          if (data.name === 'checkout.completed') {
+            document.cookie = 'paid=true; max-age=' + (365 * 24 * 60 * 60) + '; path=/; SameSite=Lax';
+            window.location.href = siteUrl + '/success';
+          }
         }
       });
-    });
+    }
+    initPaddle();
+    document.addEventListener('DOMContentLoaded', initPaddle);
+
+    // Capture-phase delegation — fires BEFORE browser follows the link
+    document.addEventListener('click', function(e) {
+      const target = e.target.closest('a[href="/api/create-checkout"], button[data-checkout]');
+      if (!target) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof Paddle === 'undefined') { console.warn('Paddle not loaded'); return; }
+      Paddle.Checkout.open({
+        items: [{ priceId: paddlePriceId, quantity: 1 }],
+        settings: { successUrl: siteUrl + '/success', displayMode: 'overlay', theme: 'light', allowLogout: false }
+      });
+    }, true); // <-- true = capture phase, critical
   </script>
 </body>
 </html>
