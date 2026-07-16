@@ -127,52 +127,93 @@ const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
     }
   </script>
 
-  <!-- Paddle Checkout — code preserved, gated by PAYMENTS_LIVE flag -->
-  <!-- To re-enable payments: set PAYMENTS_LIVE = true below (one-line change) -->
-  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
-  <script define:vars={{
-    paddleToken: import.meta.env.PADDLE_CLIENT_TOKEN ?? 'test_251f58a7eb4defd755ce96bf2ae',
-    paddleEnv: import.meta.env.PADDLE_ENVIRONMENT ?? 'sandbox',
-    paddlePriceId: import.meta.env.PADDLE_PRICE_ID ?? 'pri_01kxk93szzx7sxvk3emdsw6cqv',
-    siteUrl: import.meta.env.SITE_URL ?? 'https://eobdecoder.com'
-  }}>
-    // PAYMENTS_LIVE: set to true to re-enable live checkout. One-line change.
-    var PAYMENTS_LIVE = false;
 
-    // Initialize Paddle
-    function initPaddle() {
-      if (typeof Paddle === 'undefined') return;
-      if (paddleEnv === 'sandbox') Paddle.Environment.set('sandbox');
-      Paddle.Initialize({
-        token: paddleToken,
-        eventCallback: function(data) {
-          if (data.name === 'checkout.completed') {
-            document.cookie = 'paid=true; max-age=' + (365 * 24 * 60 * 60) + '; path=/; SameSite=Lax';
-            window.location.href = siteUrl + '/success';
+  <!-- Coming Soon Modal -->
+  <div id="coming-soon-modal" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:36px 32px; max-width:440px; width:90%; position:relative; box-shadow:0 24px 64px rgba(0,0,0,0.18);">
+      <!-- Close button -->
+      <button onclick="document.getElementById('coming-soon-modal').style.display='none'"
+        style="position:absolute; top:14px; right:16px; background:none; border:none; cursor:pointer; color:#64748B; font-size:22px; line-height:1;" aria-label="Close">&#x2715;</button>
+
+      <!-- Teal rocket icon -->
+      <div style="width:52px; height:52px; border-radius:14px; background:#D0EFF3; display:flex; align-items:center; justify-content:center; margin-bottom:18px;">
+        <svg style="width:28px;height:28px;" fill="none" stroke="#0F7B8C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+        </svg>
+      </div>
+
+      <h2 style="font-size:20px; font-weight:700; color:#1A2332; margin:0 0 8px;">Complete Dispute Kit &mdash; Coming Soon</h2>
+      <p style="font-size:14px; color:#64748B; margin:0 0 20px; line-height:1.5;">Enter your email and we&rsquo;ll notify you the moment it goes live.</p>
+
+      <div id="cs-form-wrap">
+        <form id="cs-form" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input id="cs-email" type="email" required placeholder="you@example.com"
+            style="flex:1; min-width:0; padding:11px 14px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:15px; color:#1A2332; font-family:'DM Sans',sans-serif; outline:none;" />
+          <button type="submit"
+            style="padding:11px 18px; background:#E8A020; color:#1A2332; font-weight:700; border:none; border-radius:10px; font-size:15px; cursor:pointer; white-space:nowrap; font-family:'DM Sans',sans-serif;">
+            Notify Me &rarr;
+          </button>
+        </form>
+      </div>
+      <div id="cs-success" style="display:none; color:#0F7B8C; font-weight:600; font-size:15px; padding:10px 0;">
+        &#10003; You will be notified once it is live
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show Coming Soon modal
+    function showComingSoon(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      var modal = document.getElementById('coming-soon-modal');
+      if (modal) { modal.style.display = 'flex'; }
+    }
+
+    // Capture-phase delegation: intercept a[href="/api/create-checkout"] clicks
+    document.addEventListener('click', function(e) {
+      var target = e.target && e.target.closest ? e.target.closest('a[href="/api/create-checkout"]') : null;
+      if (!target) return;
+      showComingSoon(e);
+    }, true);
+
+    // Close modal on backdrop click
+    document.getElementById('coming-soon-modal').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    // Waitlist form submit
+    document.getElementById('cs-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var email = document.getElementById('cs-email').value.trim();
+      var btn = this.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email }),
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) {
+            document.getElementById('cs-form-wrap').style.display = 'none';
+            document.getElementById('cs-success').style.display = 'block';
+          } else {
+            btn.disabled = false;
+            btn.textContent = 'Notify Me →';
+            alert(data.error || 'Something went wrong. Please try again.');
           }
-        }
-      });
-    }
-    if (PAYMENTS_LIVE) {
-      initPaddle();
-      document.addEventListener('DOMContentLoaded', initPaddle);
-    }
-
-    // Capture-phase delegation — fires BEFORE browser follows the link
-    // Only active when PAYMENTS_LIVE = true
-    if (PAYMENTS_LIVE) {
-      document.addEventListener('click', function(e) {
-        const target = e.target.closest('a[href="/api/create-checkout"], button[data-checkout]');
-        if (!target) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (typeof Paddle === 'undefined') { console.warn('Paddle not loaded'); return; }
-        Paddle.Checkout.open({
-          items: [{ priceId: paddlePriceId, quantity: 1 }],
-          settings: { successUrl: siteUrl + '/success', displayMode: 'overlay', theme: 'light', allowLogout: false }
+        })
+        .catch(function() {
+          btn.disabled = false;
+          btn.textContent = 'Notify Me →';
+          alert('Network error. Please try again.');
         });
-      }, true); // <-- true = capture phase, critical
-    }
+    });
   </script>
 </body>
 </html>
