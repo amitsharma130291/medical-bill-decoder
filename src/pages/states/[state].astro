@@ -72,28 +72,60 @@ const faqJsonLd = faqs.length > 0 ? {
   {faqJsonLd && (
     <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
   )}
-  <article class="max-w-3xl mx-auto px-4 py-16">
-    <nav class="text-sm text-gray-400 mb-6">
-      <a href="/" class="hover:text-brand-600">Home</a>
-      <span class="mx-2">/</span>
-      <span>States</span>
-      <span class="mx-2">/</span>
-      <span class="text-gray-700">{stateName}</span>
-    </nav>
 
-    <h1 class="text-4xl font-extrabold text-gray-900 mb-6">{entry.data.title}</h1>
-    <p class="text-xl text-gray-500 mb-10">{entry.data.description}</p>
-
-    <div class="prose prose-lg max-w-none">
-      <Content />
+  <!-- Hero header with teal gradient -->
+  <div class="bg-gradient-to-br from-teal-700 via-teal-600 to-cyan-600 text-white">
+    <div class="max-w-3xl mx-auto px-4 py-12 sm:py-16">
+      <!-- Breadcrumb -->
+      <nav class="text-sm text-teal-200 mb-6" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <span class="mx-2 text-teal-400">›</span>
+        <a href="/states" class="hover:text-white transition-colors">State Guides</a>
+        <span class="mx-2 text-teal-400">›</span>
+        <span class="text-white">{stateName}</span>
+      </nav>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 leading-tight">
+        {entry.data.title}
+      </h1>
+      {entry.data.description && (
+        <p class="text-lg sm:text-xl text-teal-100 leading-relaxed max-w-2xl">
+          {entry.data.description}
+        </p>
+      )}
     </div>
+  </div>
 
-    <div class="mt-12 p-6 bg-blue-50 rounded-2xl border border-blue-100">
-      <h2 class="font-bold text-blue-900 mb-2">Generate a {stateName}-specific Dispute Letter</h2>
-      <p class="text-blue-700 text-sm mb-4">Our dispute letter generator includes {stateName} state references automatically.</p>
-      <a href="/dispute-letter" class="inline-block bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-800 transition-colors">
+  <!-- Article body -->
+  <div class="max-w-3xl mx-auto px-4 py-10 sm:py-14">
+    <article
+      class="
+        prose prose-lg max-w-none
+        prose-headings:font-bold prose-headings:text-gray-900
+        prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pt-6 prose-h2:border-t prose-h2:border-gray-200
+        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+        prose-p:text-gray-700 prose-p:leading-relaxed
+        prose-a:text-teal-700 prose-a:font-medium hover:prose-a:text-teal-900
+        prose-strong:text-gray-900
+        prose-ul:my-4 prose-li:my-1 prose-li:text-gray-700
+        prose-ol:my-4
+        prose-blockquote:border-l-4 prose-blockquote:border-teal-500 prose-blockquote:bg-teal-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
+        prose-table:border-collapse prose-table:w-full
+        prose-th:bg-gray-100 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:border prose-th:border-gray-300
+        prose-td:px-4 prose-td:py-2 prose-td:border prose-td:border-gray-200
+        prose-code:bg-gray-100 prose-code:text-teal-700 prose-code:rounded prose-code:px-1
+        prose-pre:bg-gray-900 prose-pre:rounded-xl
+      "
+    >
+      <Content />
+    </article>
+
+    <!-- State-specific CTA -->
+    <div class="mt-12 p-6 bg-teal-50 rounded-2xl border border-teal-100">
+      <h2 class="font-bold text-teal-900 text-lg mb-2">Generate a {stateName}-specific Dispute Letter</h2>
+      <p class="text-teal-700 text-sm mb-4">Our dispute letter generator includes {stateName} state references automatically.</p>
+      <a href="/dispute-letter" class="inline-block bg-teal-700 text-white font-semibold px-6 py-3 rounded-xl hover:bg-teal-800 transition-colors">
         Generate Dispute Letter →
       </a>
     </div>
-  </article>
+  </div>
 </Layout>
