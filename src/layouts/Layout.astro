@@ -10,6 +10,7 @@ const { title, description = 'Decode your medical bills, dispute errors, and fig
 const canonicalURL = canonicalUrl ?? new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = image ?? `${import.meta.env.SITE_URL ?? 'https://eobdecoder.com'}/og-image.svg`;
 const gaMeasurementId = import.meta.env.GA_MEASUREMENT_ID ?? '';
+const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
 
 ---
 <!DOCTYPE html>
@@ -20,6 +21,7 @@ const gaMeasurementId = import.meta.env.GA_MEASUREMENT_ID ?? '';
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
   <meta name="robots" content="index, follow" />
+  {isVercelPreview && <meta name="robots" content="noindex, nofollow" />}
   <title>{title} | Medical Bill Decoder</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
