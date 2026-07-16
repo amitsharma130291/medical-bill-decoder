@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { marked } from 'marked';
 
+// ---------------------------------------------------------------------------
+// PAYMENTS_LIVE: set to true to re-enable the $19 checkout button.
+// false = show Coming Soon UI instead. One-line change to go live.
+// ---------------------------------------------------------------------------
+const PAYMENTS_LIVE = false;
+
 const TEAL = '#0F7B8C';
 const BLUE = '#2D4A7A';
 const AMBER = '#E8A020';
@@ -132,13 +138,23 @@ export default function EobDecoder() {
           <p style={{ fontSize: 14, color: ERROR_RED, margin: 0 }}>{error}</p>
           {blocked && (
             <div style={{ marginTop: 12 }}>
-              <a href="/api/create-checkout" style={{
-                display: 'inline-block', background: AMBER, color: INK,
-                fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
-                fontSize: 14, textDecoration: 'none',
-              }}>
-                Get Complete Dispute Kit — $19
-              </a>
+              {PAYMENTS_LIVE ? (
+                <a href="/api/create-checkout" style={{
+                  display: 'inline-block', background: AMBER, color: INK,
+                  fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
+                  fontSize: 14, textDecoration: 'none',
+                }}>
+                  Get Complete Dispute Kit — $19
+                </a>
+              ) : (
+                <span style={{
+                  display: 'inline-block', background: '#D1D5DB', color: '#6B7280',
+                  fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
+                  fontSize: 14, cursor: 'not-allowed',
+                }}>
+                  Coming Soon — $19
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -187,13 +203,30 @@ export default function EobDecoder() {
               <p style={{ fontSize: 13, color: MUTED, margin: '0 0 14px', lineHeight: 1.5 }}>
                 The Complete Dispute Kit includes step-by-step dispute instructions, state-specific guides, and up to 20 decodes per day.
               </p>
-              <a href="/api/create-checkout" style={{
-                display: 'inline-block', background: AMBER, color: INK,
-                fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
-                fontSize: 14, textDecoration: 'none',
-              }}>
-                Upgrade for $19 →
-              </a>
+              {PAYMENTS_LIVE ? (
+                <a href="/api/create-checkout" style={{
+                  display: 'inline-block', background: AMBER, color: INK,
+                  fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
+                  fontSize: 14, textDecoration: 'none',
+                }}>
+                  Upgrade for $19 →
+                </a>
+              ) : (
+                <div>
+                  <span style={{
+                    display: 'inline-block', background: '#D1D5DB', color: '#6B7280',
+                    fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
+                    fontSize: 14, cursor: 'not-allowed',
+                  }}>
+                    Coming Soon — $19
+                  </span>
+                  <p style={{ fontSize: 12, color: MUTED, marginTop: 8, marginBottom: 0 }}>
+                    Payments coming soon —{' '}
+                    <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline' }}>join the waitlist</a>
+                    {' '}to be notified.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

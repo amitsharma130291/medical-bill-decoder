@@ -1,5 +1,11 @@
 import { useState } from 'react';
 
+// ---------------------------------------------------------------------------
+// PAYMENTS_LIVE: set to true to re-enable the $19 checkout button.
+// false = show Coming Soon UI instead. One-line change to go live.
+// ---------------------------------------------------------------------------
+const PAYMENTS_LIVE = false;
+
 const TEAL = '#0F7B8C';
 const BLUE = '#2D4A7A';
 const AMBER = '#E8A020';
@@ -165,7 +171,10 @@ export default function DisputeLetter() {
           </svg>
           <p style={{ fontSize: 13, color: INK, margin: 0 }}>
             {alreadyUsed
-              ? <>Free letter used. <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($19)</a> for up to 20 letters per day.</>
+              ? <>Free letter used. {PAYMENTS_LIVE
+                  ? <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($19)</a>
+                  : <a href="/#complete-kit" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Complete Dispute Kit — coming soon</a>
+                } for up to 20 letters per day.</>
               : <><strong>Free tier:</strong> 1 dispute letter per session. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for up to 20 letters →</a></>
             }
           </p>
@@ -215,10 +224,22 @@ export default function DisputeLetter() {
         <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '14px 16px' }}>
           <p style={{ fontSize: 13, color: ERROR_RED, margin: 0 }}>{error}</p>
           {blocked && (
-            <a href="/api/create-checkout" style={{
-              display: 'inline-block', marginTop: 10, background: AMBER, color: INK,
-              fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, textDecoration: 'none',
-            }}>Get Complete Dispute Kit — $19</a>
+            PAYMENTS_LIVE ? (
+              <a href="/api/create-checkout" style={{
+                display: 'inline-block', marginTop: 10, background: AMBER, color: INK,
+                fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, textDecoration: 'none',
+              }}>Get Complete Dispute Kit — $19</a>
+            ) : (
+              <div style={{ marginTop: 10 }}>
+                <span style={{
+                  display: 'inline-block', background: '#D1D5DB', color: '#6B7280',
+                  fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, cursor: 'not-allowed',
+                }}>Coming Soon — $19</span>
+                <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6, marginBottom: 0 }}>
+                  <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline' }}>Join the waitlist</a> to be notified when payments launch.
+                </p>
+              </div>
+            )
           )}
         </div>
       )}
