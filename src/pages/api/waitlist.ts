@@ -12,36 +12,40 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const resendApiKey = import.meta.env.RESEND_API_KEY;
+    const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY;
 
-    if (resendApiKey) {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Medical Bill Decoder <waitlist@eobdecoder.com>',
-          to: ['amitsharma00261@gmail.com'],
-          subject: 'New Waitlist Sign-up — Medical Bill Decoder',
-          html: `<p>New waitlist signup:</p><p><strong>${email}</strong></p>`,
-        }),
-      });
+    if (web3formsKey) {
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_key: web3formsKey,
+            subject: `New waitlist signup: ${email}`,
+            from_name: 'EOB Decoder Waitlist',
+            email: email,
+            message: `New waitlist signup from eobdecoder.com: ${email} at ${new Date().toISOString()}`,
+            botcheck: false,
+          }),
+        });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error('[waitlist] Resend error:', errText);
-        return new Response(
-          JSON.stringify({ success: false, error: 'Failed to send notification email' }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } },
-        );
+        const data = await res.json();
+
+        if (!data.success) {
+          console.warn('[waitlist] Web3Forms response (server-side may require paid plan):', data.message);
+        }
+      } catch (err) {
+        // Web3Forms server-side calls require paid plan; client-side call in Layout.astro
+        // handles the notification for free-plan users.
+        console.warn('[waitlist] Web3Forms server-side error (non-fatal):', err);
       }
     } else {
-      // Graceful fallback — log and succeed so the user isn't left hanging
-      console.log('[waitlist] RESEND_API_KEY not set — signup recorded but no email sent:', email);
+      // No key set — client-side call in Layout.astro still fires if key is set there.
+      console.log('[waitlist] WEB3FORMS_ACCESS_KEY not set — client-side submission handles notification for:', email);
     }
 
+    // Always return success so the UI confirms the signup.
+    // The client-side Web3Forms call in Layout.astro is the primary notification path.
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

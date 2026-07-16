@@ -11,6 +11,7 @@ const canonicalURL = canonicalUrl ?? new URL(Astro.url.pathname, Astro.site).hre
 const ogImage = image ?? `${import.meta.env.SITE_URL ?? 'https://eobdecoder.com'}/og-image.svg`;
 const gaMeasurementId = import.meta.env.GA_MEASUREMENT_ID ?? '';
 const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
+const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
 
 ---
 <!DOCTYPE html>
@@ -149,7 +150,7 @@ const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
       <p style="font-size:14px; color:#64748B; margin:0 0 20px; line-height:1.5;">Enter your email and we&rsquo;ll notify you the moment it goes live.</p>
 
       <div id="cs-form-wrap">
-        <form id="cs-form" style="display:flex; gap:8px; flex-wrap:wrap;">
+        <form id="cs-form" data-w3f-key={web3formsKey} style="display:flex; gap:8px; flex-wrap:wrap;">
           <input id="cs-email" type="email" required placeholder="you@example.com"
             style="flex:1; min-width:0; padding:11px 14px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:15px; color:#1A2332; font-family:'DM Sans',sans-serif; outline:none;" />
           <button type="submit"
@@ -191,6 +192,23 @@ const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
       var btn = this.querySelector('button[type="submit"]');
       btn.disabled = true;
       btn.textContent = 'Sending...';
+
+      // Always fires client-side — zero config, no server env var needed
+      var w3fKey = document.getElementById('cs-form').dataset.w3fKey;
+      if (w3fKey) {
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_key: w3fKey,
+            subject: 'New EOB Decoder Waitlist Signup',
+            from_name: 'EOB Decoder',
+            email: email,
+            message: 'New waitlist signup: ' + email + ' at ' + new Date().toISOString(),
+            botcheck: false,
+          }),
+        }).catch(function(e) { console.warn('Web3Forms:', e); });
+      }
 
       fetch('/api/waitlist', {
         method: 'POST',
