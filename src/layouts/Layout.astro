@@ -70,6 +70,7 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
           <a href="/eob-decoder" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">EOB Decoder</a>
           <a href="/dispute-letter" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Dispute Letter</a>
           <a href="/billing-errors" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Billing Errors</a>
+          <a href="/pricing" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Pricing</a>
           <a href="/eob-decoder" class="bg-[#2D4A7A] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#243D66] transition-colors">
             Get Started Free
           </a>
@@ -147,7 +148,22 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
       </div>
 
       <h2 style="font-size:20px; font-weight:700; color:#1A2332; margin:0 0 8px;">Complete Dispute Kit &mdash; Coming Soon</h2>
-      <p style="font-size:14px; color:#64748B; margin:0 0 20px; line-height:1.5;">Enter your email and we&rsquo;ll notify you the moment it goes live.</p>
+      <p style="font-size:14px; color:#64748B; margin:0 0 16px; line-height:1.5;">Enter your email and we&rsquo;ll notify you the moment it goes live.</p>
+
+      <!-- Mini pricing preview -->
+      <div style="background:#F7F8FA; border:1px solid #E2E8F0; border-radius:10px; padding:14px 16px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:14px; font-weight:600; color:#334155;">Dispute Kit</span>
+          <span style="font-size:15px; font-weight:700; color:#1A2332;"><span style="text-decoration:line-through; color:#94A3B8; font-weight:400; margin-right:6px;">$39</span>$29</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:14px; font-weight:600; color:#334155;">Complete Access</span>
+          <span style="font-size:15px; font-weight:700; color:#1A2332;">$49</span>
+        </div>
+        <div style="font-size:12px; font-weight:600; color:#0F7B8C; text-align:center; padding-top:8px; border-top:1px solid #E2E8F0;">
+          Founding members get $29 Complete Access. First 100 only.
+        </div>
+      </div>
 
       <div id="cs-form-wrap">
         <form id="cs-form" data-w3f-key={web3formsKey} style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -171,6 +187,9 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
       if (e) { e.preventDefault(); e.stopPropagation(); }
       var modal = document.getElementById('coming-soon-modal');
       if (modal) { modal.style.display = 'flex'; }
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'pricing_modal_open', { event_category: 'engagement', event_label: 'coming_soon_modal' });
+      }
     }
 
     // Capture-phase delegation: intercept a[href="/api/create-checkout"] clicks
@@ -220,6 +239,9 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
           if (data.success) {
             document.getElementById('cs-form-wrap').style.display = 'none';
             document.getElementById('cs-success').style.display = 'block';
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'waitlist_signup', { event_category: 'conversion', event_label: 'pricing_waitlist', value: 29 });
+            }
           } else {
             btn.disabled = false;
             btn.textContent = 'Notify Me →';
