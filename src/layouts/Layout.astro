@@ -127,85 +127,39 @@ const isVercelPreview = Astro.url.hostname.includes('.vercel.app');
     }
   </script>
 
-  <!-- Coming Soon waitlist modal -->
-  <div id="coming-soon-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px);" role="dialog" aria-modal="true" aria-labelledby="cs-modal-title">
-    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; border-radius:20px; padding:40px 36px; max-width:440px; width:calc(100% - 32px); box-shadow:0 24px 64px rgba(15,23,42,0.18); text-align:center;">
-      <button id="cs-close-btn" style="position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer; color:#94A3B8; font-size:22px; line-height:1;" aria-label="Close">&times;</button>
-      <div style="width:52px; height:52px; background:#D0EFF3; border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-        <svg width="26" height="26" fill="none" stroke="#0F7B8C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
-      </div>
-      <h2 id="cs-modal-title" style="font-family:'DM Sans',sans-serif; font-size:22px; font-weight:700; color:#1A2332; margin:0 0 8px;">Complete Dispute Kit — Coming Soon</h2>
-      <p style="font-size:14px; color:#64748B; line-height:1.6; margin:0 0 24px;">We're putting the finishing touches on the Complete Dispute Kit. Drop your email and you'll be the first to know when it launches — plus get an early-bird discount.</p>
-      <form id="cs-waitlist-form" style="display:flex; flex-direction:column; gap:12px;">
-        <input id="cs-email-input" type="email" required placeholder="you@example.com" style="width:100%; box-sizing:border-box; padding:12px 16px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:15px; color:#1A2332; outline:none; font-family:inherit;" />
-        <button type="submit" style="background:#E8A020; color:#1A2332; font-weight:700; font-size:15px; padding:13px 24px; border:none; border-radius:10px; cursor:pointer; font-family:inherit; transition:background 0.15s;" onmouseover="this.style.background='#D4901A'" onmouseout="this.style.background='#E8A020'">
-          Notify Me at Launch
-        </button>
-      </form>
-      <div id="cs-success-msg" style="display:none; margin-top:16px; padding:12px 16px; background:#D1FAE5; border-radius:10px; color:#065F46; font-size:14px; font-weight:500;">
-        &#10003; You're on the list! We'll email you when we launch.
-      </div>
-      <p style="margin-top:16px; font-size:12px; color:#94A3B8;">No spam. Unsubscribe anytime.</p>
-    </div>
-  </div>
-
-  <script>
-    // Coming Soon modal logic
-    (function () {
-      var modal = document.getElementById('coming-soon-modal');
-      var closeBtn = document.getElementById('cs-close-btn');
-      var form = document.getElementById('cs-waitlist-form');
-      var emailInput = document.getElementById('cs-email-input');
-      var successMsg = document.getElementById('cs-success-msg');
-
-      function showComingSoon(e) {
-        if (e) e.preventDefault();
-        modal.style.display = 'block';
-        emailInput.value = '';
-        form.style.display = 'flex';
-        successMsg.style.display = 'none';
-        setTimeout(function () { emailInput.focus(); }, 50);
+  <!-- Paddle Checkout -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script define:vars={{
+    paddleToken: import.meta.env.PADDLE_CLIENT_TOKEN ?? 'test_251f58a7eb4defd755ce96bf2ae',
+    paddleEnv: import.meta.env.PADDLE_ENVIRONMENT ?? 'sandbox',
+    paddlePriceId: import.meta.env.PADDLE_PRICE_ID ?? 'pri_01kxk93szzx7sxvk3emdsw6cqv',
+    siteUrl: import.meta.env.SITE_URL ?? 'https://eobdecoder.com'
+  }}>
+    Paddle.Environment.set(paddleEnv);
+    Paddle.Initialize({
+      token: paddleToken,
+      eventCallback: function(data) {
+        if (data.name === 'checkout.completed') {
+          // Set paid cookie (30 days)
+          var expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
+          document.cookie = 'mbd_paid=1; path=/; expires=' + expires + '; SameSite=Lax';
+          window.location.href = siteUrl + '/success';
+        }
       }
+    });
 
-      function closeModal() {
-        modal.style.display = 'none';
-      }
-
-      // Intercept all links pointing to /api/create-checkout
-      document.addEventListener('click', function (e) {
-        var anchor = e.target.closest('a[href="/api/create-checkout"]');
-        if (!anchor) return;
-        showComingSoon(e);
+    // Intercept all links pointing to /api/create-checkout
+    document.addEventListener('click', function(e) {
+      var anchor = e.target.closest('a[href="/api/create-checkout"]');
+      if (!anchor) return;
+      e.preventDefault();
+      Paddle.Checkout.open({
+        items: [{ priceId: paddlePriceId, quantity: 1 }],
+        settings: {
+          successUrl: siteUrl + '/success'
+        }
       });
-
-      // Close on X button
-      closeBtn.addEventListener('click', closeModal);
-
-      // Close on backdrop click
-      modal.addEventListener('click', function (e) {
-        if (e.target === modal) closeModal();
-      });
-
-      // Close on Escape key
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && modal.style.display === 'block') closeModal();
-      });
-
-      // Handle form submission
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var email = emailInput.value.trim();
-        if (!email) return;
-        // Store in localStorage as a lightweight capture
-        try {
-          var leads = JSON.parse(localStorage.getItem('mbd_waitlist') || '[]');
-          if (!leads.includes(email)) leads.push(email);
-          localStorage.setItem('mbd_waitlist', JSON.stringify(leads));
-        } catch (_) {}
-        form.style.display = 'none';
-        successMsg.style.display = 'block';
-      });
-    })();
+    });
   </script>
 </body>
 </html>
