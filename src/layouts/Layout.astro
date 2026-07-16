@@ -9,6 +9,7 @@ export interface Props {
 const { title, description = 'Decode your medical bills, dispute errors, and fight back against overcharges with free AI-powered tools.', image, canonicalUrl } = Astro.props;
 const canonicalURL = canonicalUrl ?? new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = image ?? `${import.meta.env.SITE_URL ?? 'https://eobdecoder.com'}/og-image.svg`;
+const gaMeasurementId = import.meta.env.GA_MEASUREMENT_ID ?? '';
 
 ---
 <!DOCTYPE html>
@@ -37,6 +38,18 @@ const ogImage = image ?? `${import.meta.env.SITE_URL ?? 'https://eobdecoder.com'
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
 
+
+  {gaMeasurementId && (
+    <Fragment>
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
+      <script define:vars={{ gaMeasurementId }}>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', gaMeasurementId);
+      </script>
+    </Fragment>
+  )}
 </head>
 <body class="min-h-screen font-sans text-ink" style="background-color: #F7F8FA;">
 
