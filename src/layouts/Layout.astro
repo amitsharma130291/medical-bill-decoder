@@ -211,5 +211,32 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
 
 
   </script>
+
+  <script>
+    // Silent license key re-verification — runs on every page load
+    // If paid cookie expired but license key is in localStorage, silently restore access
+    (async function autoRenewAccess() {
+      const isPaid = document.cookie.includes('paid=true');
+      if (isPaid) return;
+      const storedKey = localStorage.getItem('gumroad_license');
+      if (!storedKey) return;
+      try {
+        const res = await fetch('/api/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ license_key: storedKey }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.cookie = 'paid=true; max-age=' + (365 * 24 * 60 * 60) + '; path=/; SameSite=Lax';
+          window.dispatchEvent(new CustomEvent('accessRestored'));
+        } else {
+          localStorage.removeItem('gumroad_license');
+        }
+      } catch (err) {
+        // Silent fail — never disrupt the user
+      }
+    })();
+  </script>
 </body>
 </html>
