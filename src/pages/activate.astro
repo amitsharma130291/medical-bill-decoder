@@ -1,0 +1,177 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Activate Your Dispute Kit"
+  description="Enter your Gumroad license key to activate your Medical Bill Decoder Dispute Kit."
+  canonicalUrl="https://eobdecoder.com/activate"
+>
+
+  <section class="py-16 px-4" style="background: #F7F8FA; min-height: 70vh; display: flex; align-items: flex-start;">
+    <div class="max-w-md mx-auto w-full">
+
+      <!-- Header -->
+      <div style="text-align:center; margin-bottom:32px;">
+        <div style="width:60px; height:60px; border-radius:16px; background:#D0EFF3; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+          <svg style="width:32px;height:32px;" fill="none" stroke="#0F7B8C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+        </div>
+        <h1 style="font-size:28px; font-weight:800; color:#1A2332; margin:0 0 10px;">Activate Your Dispute Kit</h1>
+        <p style="font-size:15px; color:#64748B; line-height:1.6; margin:0;">
+          Enter the license key from your Gumroad purchase email to unlock the Dispute Kit.
+        </p>
+      </div>
+
+      <!-- Card -->
+      <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:36px 32px; box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+
+        <!-- Success state (hidden until verified) -->
+        <div id="activate-success" style="display:none; text-align:center;">
+          <div style="width:56px; height:56px; border-radius:50%; background:#D1FAE5; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+            <svg style="width:28px;height:28px;" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h2 style="font-size:22px; font-weight:800; color:#1A2332; margin:0 0 10px;">Dispute Kit Activated!</h2>
+          <p style="font-size:15px; color:#64748B; margin:0 0 28px; line-height:1.6;">
+            Your key has been verified. You now have full access to the Dispute Kit.
+          </p>
+          <a href="/eob-decoder"
+            style="display:inline-block; padding:13px 28px; background:#0F7B8C; color:#fff; font-weight:700; font-size:15px; border-radius:10px; text-decoration:none;"
+            onmouseover="this.style.background='#0a6475'" onmouseout="this.style.background='#0F7B8C'">
+            Go to EOB Decoder →
+          </a>
+        </div>
+
+        <!-- Form state -->
+        <div id="activate-form-wrap">
+          <div style="margin-bottom:20px;">
+            <label for="license-key" style="display:block; font-size:14px; font-weight:600; color:#334155; margin-bottom:8px;">
+              License Key
+            </label>
+            <input
+              id="license-key"
+              type="text"
+              placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+              style="width:100%; box-sizing:border-box; padding:12px 14px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:15px; color:#1A2332; font-family:'DM Sans',sans-serif; outline:none; letter-spacing:0.02em;"
+            />
+          </div>
+
+          <div id="activate-error" style="display:none; background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:14px; color:#B91C1C;"></div>
+
+          <button id="activate-btn"
+            style="width:100%; padding:13px 20px; background:#E8A020; color:#1A2332; font-weight:700; font-size:16px; border:none; border-radius:10px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background 0.15s;"
+            onmouseover="this.style.background='#D4911C'" onmouseout="this.style.background='#E8A020'">
+            Activate Key →
+          </button>
+
+          <p style="text-align:center; font-size:13px; color:#94A3B8; margin:20px 0 0; line-height:1.5;">
+            Don't have a key?
+            <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
+              style="color:#0F7B8C; font-weight:600; text-decoration:none;">
+              Purchase the Dispute Kit for $29 →
+            </a>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Help text -->
+      <div style="margin-top:24px; text-align:center;">
+        <p style="font-size:13px; color:#94A3B8; line-height:1.6;">
+          Your license key was emailed to you by Gumroad immediately after purchase.<br>
+          Check your spam folder if you don't see it.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    (function() {
+      var btn = document.getElementById('activate-btn');
+      var input = document.getElementById('license-key');
+      var errorBox = document.getElementById('activate-error');
+      var formWrap = document.getElementById('activate-form-wrap');
+      var successBox = document.getElementById('activate-success');
+
+      // Pre-fill from localStorage if already saved
+      var savedKey = '';
+      try { savedKey = localStorage.getItem('mbd_license_key') || ''; } catch(e) {}
+      if (savedKey) input.value = savedKey;
+
+      btn.addEventListener('click', function() {
+        var key = input.value.trim();
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+
+        if (!key) {
+          errorBox.textContent = 'Please enter your license key.';
+          errorBox.style.display = 'block';
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Verifying...';
+
+        fetch('/api/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ license_key: key }),
+        })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.success) {
+              // Store paid status
+              try {
+                localStorage.setItem('mbd_paid', 'true');
+                localStorage.setItem('mbd_license_key', key);
+              } catch(e) {}
+
+              // Set cookie (30 days)
+              var expires = new Date();
+              expires.setDate(expires.getDate() + 30);
+              document.cookie = 'paid=true; expires=' + expires.toUTCString() + '; path=/; SameSite=Lax';
+
+              // Show success, hide form
+              formWrap.style.display = 'none';
+              successBox.style.display = 'block';
+
+              // Redirect after 2.5s
+              setTimeout(function() {
+                window.location.href = '/eob-decoder';
+              }, 2500);
+
+              if (typeof gtag !== 'undefined') {
+                gtag('event', 'license_activated', { event_category: 'conversion', event_label: 'dispute_kit', value: 29 });
+              }
+            } else {
+              errorBox.textContent = data.error || 'Invalid license key. Please check and try again.';
+              errorBox.style.display = 'block';
+              btn.disabled = false;
+              btn.textContent = 'Activate Key →';
+            }
+          })
+          .catch(function() {
+            errorBox.textContent = 'Network error. Please check your connection and try again.';
+            errorBox.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Activate Key →';
+          });
+      });
+
+      // Allow Enter key
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') btn.click();
+      });
+    })();
+  </script>
+
+</Layout>

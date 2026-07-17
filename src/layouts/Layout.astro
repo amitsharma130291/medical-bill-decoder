@@ -71,6 +71,7 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
           <a href="/dispute-letter" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Dispute Letter</a>
           <a href="/billing-errors" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Billing Errors</a>
           <a href="/pricing" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Pricing</a>
+          <a href="/activate" class="text-[#64748B] hover:text-[#0F7B8C] font-medium text-sm transition-colors">Activate Key</a>
           <a href="/eob-decoder" class="bg-[#2D4A7A] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#243D66] transition-colors">
             Get Started Free
           </a>
@@ -154,8 +155,8 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
         </svg>
       </div>
 
-      <h2 style="font-size:20px; font-weight:700; color:#1A2332; margin:0 0 8px;">Complete Dispute Kit &mdash; Coming Soon</h2>
-      <p style="font-size:14px; color:#64748B; margin:0 0 16px; line-height:1.5;">Enter your email and we&rsquo;ll notify you the moment it goes live.</p>
+      <h2 style="font-size:20px; font-weight:700; color:#1A2332; margin:0 0 8px;">Complete Dispute Kit — Now Live</h2>
+      <p style="font-size:14px; color:#64748B; margin:0 0 16px; line-height:1.5;">One-time payment. Instant access. Verify your key at <strong>eobdecoder.com/activate</strong> after purchase.</p>
 
       <!-- Mini pricing preview -->
       <div style="background:#F7F8FA; border:1px solid #E2E8F0; border-radius:10px; padding:14px 16px; margin-bottom:18px;">
@@ -168,23 +169,20 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
           <span style="font-size:15px; font-weight:700; color:#1A2332;">$49</span>
         </div>
         <div style="font-size:12px; font-weight:600; color:#0F7B8C; text-align:center; padding-top:8px; border-top:1px solid #E2E8F0;">
-          Founding members get $29 Complete Access. First 100 only.
+          After purchase, enter your key at eobdecoder.com/activate
         </div>
       </div>
 
-      <div id="cs-form-wrap">
-        <form id="cs-form" data-w3f-key={web3formsKey} style="display:flex; gap:8px; flex-wrap:wrap;">
-          <input id="cs-email" type="email" required placeholder="you@example.com"
-            style="flex:1; min-width:0; padding:11px 14px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:15px; color:#1A2332; font-family:'DM Sans',sans-serif; outline:none;" />
-          <button type="submit"
-            style="padding:11px 18px; background:#E8A020; color:#1A2332; font-weight:700; border:none; border-radius:10px; font-size:15px; cursor:pointer; white-space:nowrap; font-family:'DM Sans',sans-serif;">
-            Notify Me &rarr;
-          </button>
-        </form>
-      </div>
-      <div id="cs-success" style="display:none; color:#0F7B8C; font-weight:600; font-size:15px; padding:10px 0;">
-        &#10003; You will be notified once it is live
-      </div>
+      <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
+        style="display:block; text-align:center; padding:13px 20px; background:#E8A020; color:#1A2332; font-weight:700; font-size:16px; border-radius:10px; text-decoration:none; margin-bottom:12px;"
+        onclick="if(typeof gtag!=='undefined'){gtag('event','gumroad_buy_click',{event_category:'conversion',event_label:'dispute_kit_modal',value:29})}">
+        Buy Dispute Kit — $29 →
+      </a>
+      <a href="/activate"
+        style="display:block; text-align:center; padding:11px 20px; border:1.5px solid #CBD5E1; color:#64748B; font-weight:600; font-size:14px; border-radius:10px; text-decoration:none;"
+        onclick="document.getElementById('coming-soon-modal').style.display='none'">
+        Already purchased? Activate your key →
+      </a>
     </div>
   </div>
 
@@ -211,56 +209,7 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
       if (e.target === this) this.style.display = 'none';
     });
 
-    // Waitlist form submit
-    document.getElementById('cs-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var email = document.getElementById('cs-email').value.trim();
-      var btn = this.querySelector('button[type="submit"]');
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
 
-      // Always fires client-side — zero config, no server env var needed
-      var w3fKey = document.getElementById('cs-form').dataset.w3fKey;
-      if (w3fKey) {
-        fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_key: w3fKey,
-            subject: 'New EOB Decoder Waitlist Signup',
-            from_name: 'EOB Decoder',
-            email: email,
-            message: 'New waitlist signup: ' + email + ' at ' + new Date().toISOString(),
-            botcheck: false,
-          }),
-        }).catch(function(e) { console.warn('Web3Forms:', e); });
-      }
-
-      fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email }),
-      })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.success) {
-            document.getElementById('cs-form-wrap').style.display = 'none';
-            document.getElementById('cs-success').style.display = 'block';
-            if (typeof gtag !== 'undefined') {
-              gtag('event', 'waitlist_signup', { event_category: 'conversion', event_label: 'pricing_waitlist', value: 29 });
-            }
-          } else {
-            btn.disabled = false;
-            btn.textContent = 'Notify Me →';
-            alert(data.error || 'Something went wrong. Please try again.');
-          }
-        })
-        .catch(function() {
-          btn.disabled = false;
-          btn.textContent = 'Notify Me →';
-          alert('Network error. Please try again.');
-        });
-    });
   </script>
 </body>
 </html>
