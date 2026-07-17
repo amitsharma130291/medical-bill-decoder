@@ -62,7 +62,7 @@ export const POST: APIRoute = async ({ request }) => {
     const openai = new OpenAI({ apiKey: import.meta.env.OPENAI_API_KEY });
 
     const systemPrompt = isPaid
-      ? `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English.
+      ? `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
 
 Provide:
 1. A clear summary of what the EOB says in simple terms
@@ -71,8 +71,8 @@ Provide:
 4. Step-by-step dispute guidance for any suspicious charges
 5. Specific next steps the patient should take
 
-Be thorough and actionable. Use plain English — no jargon.`
-      : `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English.
+Use plain English — no jargon.`
+      : `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
 
 Provide:
 1. A clear summary of what the EOB says in simple terms
@@ -82,12 +82,12 @@ Provide:
 Keep your response helpful but brief. Mention that the Complete Dispute Kit (upgrade) provides full dispute guidance and step-by-step instructions.`;
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Please decode this EOB:\n\n${eobText.slice(0, 8000)}` },
       ],
-      max_tokens: isPaid ? 1500 : 700,
+      max_tokens: 800,
       temperature: 0.3,
     });
 
