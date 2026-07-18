@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 
 const DAILY_LIMIT = 3;
 const PAID_DAILY_LIMIT = 20;
+const COMPLETE_ACCESS_DAILY_LIMIT = 50;
 
 function getTodayKey() {
   const d = new Date();
@@ -54,7 +55,13 @@ export const POST: APIRoute = async ({ request }) => {
 
     const paidKey = getPaidTodayKey();
     const paidCount = parseInt(cookies[paidKey] || '0', 10);
-    // complete-access tier has Infinity (no daily cap); dispute-kit is capped at PAID_DAILY_LIMIT
+    // complete-access is capped at COMPLETE_ACCESS_DAILY_LIMIT; dispute-kit is capped at PAID_DAILY_LIMIT
+    if (isPaid && isCompleteAccess && paidCount >= COMPLETE_ACCESS_DAILY_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: 'You have reached your 50 decode limit for today. Your limit resets at midnight.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     if (isPaid && !isCompleteAccess && paidCount >= PAID_DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight. Thank you for using the Complete Dispute Kit!' }),
@@ -63,8 +70,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const openai = new OpenAI({ apiKey: import.meta.env.OPENAI_API_KEY });
-    // complete-access gets gpt-4o for higher quality; everyone else gets gpt-4o-mini
-    const model = isCompleteAccess ? 'gpt-4o' : 'gpt-4o-mini';
+    // all tiers use gpt-4o-mini for consistent unit economics
+    const model = 'gpt-4o-mini';
 
     const systemPrompt = isPaid
       ? `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
@@ -103,11 +110,11 @@ Keep your response helpful but brief. Mention that the Complete Dispute Kit (upg
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    // complete-access has no cap so no need to track usage count
     const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
     if (!isPaid) {
       responseHeaders['Set-Cookie'] = `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
-    } else if (!isCompleteAccess) {
+    } else {
+      // track usage for both complete-access (50/day) and dispute-kit (20/day)
       responseHeaders['Set-Cookie'] = `${paidKey}=${paidCount + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
     }
 
