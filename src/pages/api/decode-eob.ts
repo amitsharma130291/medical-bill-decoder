@@ -48,7 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!isPaid && count >= DAILY_LIMIT) {
       return new Response(
-        JSON.stringify({ error: 'Daily limit reached. Upgrade to the Complete Dispute Kit for up to 20 decodes per day.' }),
+        JSON.stringify({ error: 'Daily limit reached. Upgrade to the 7-Day Pass ($9) or Dispute Kit ($29) for up to 20 decodes per day.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -64,7 +64,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
     if (isPaid && !isCompleteAccess && paidCount >= PAID_DAILY_LIMIT) {
       return new Response(
-        JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight. Thank you for using the Complete Dispute Kit!' }),
+        JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
