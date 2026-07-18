@@ -127,53 +127,17 @@ import Layout from '../layouts/Layout.astro';
       <h2 class="font-semibold mb-4" style="font-size: 28px;">Get the Complete Dispute Kit</h2>
       <p class="text-blue-200 mb-8" style="font-size: 16px; line-height: 1.6;">Unlock up to 20 EOB decodes per day, up to 20 letters, customizable letter templates, state-specific dispute guides, and step-by-step appeal instructions — all for a one-time fee.</p>
 
-      <!-- PAYMENTS_LIVE = false: show Coming Soon UI. Set to true to swap back to payment button. -->
       <div class="flex flex-col items-center gap-4">
-        <!-- Coming Soon button (shown when PAYMENTS_LIVE = false) -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <span class="font-bold px-8 py-4 rounded-xl text-[#6B7280] cursor-not-allowed" style="background-color: #D1D5DB; font-size: 16px;">
-            Coming Soon — Join Waitlist &rarr;
-          </span>
-          <span class="text-blue-300 text-sm">One-time payment. No subscription.</span>
+          <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
+            class="font-bold px-8 py-4 rounded-xl transition-colors text-[#1A2332]" style="background-color: #E8A020; font-size: 16px;"
+            onmouseover="this.style.backgroundColor='#D4901A'" onmouseout="this.style.backgroundColor='#E8A020'"
+            onclick="if(typeof gtag!=='undefined'){gtag('event','gumroad_buy_click',{event_category:'conversion',event_label:'complete_kit_homepage',value:29})}">
+            Get the Dispute Kit — $29 &rarr;
+          </a>
+          <a href="/pricing" class="text-blue-200 text-sm underline">See all plans &rarr;</a>
         </div>
-
-        <!-- Waitlist form -->
-        <div style="margin-top: 8px; max-width: 420px; width: 100%;">
-          <p class="text-blue-200 text-sm mb-3">Payments coming soon — join the waitlist to be notified when it launches.</p>
-          <form id="inline-waitlist-form" class="flex flex-col sm:flex-row gap-2">
-            <input id="inline-waitlist-email" type="email" required placeholder="your@email.com"
-              style="flex: 1; padding: 12px 16px; border-radius: 10px; border: none; font-size: 15px; color: #1A2332; font-family: 'DM Sans', sans-serif; min-width: 0;" />
-            <button type="submit"
-              style="padding: 12px 20px; border-radius: 10px; background: #E8A020; color: #1A2332; font-weight: 700; border: none; cursor: pointer; font-size: 15px; white-space: nowrap; font-family: 'DM Sans', sans-serif;">
-              Notify Me &rarr;
-            </button>
-          </form>
-          <div id="inline-waitlist-success" style="display:none; color:#7DD3FC; font-weight:600; font-size:15px; margin-top:8px;">&#10003; You will be notified once it is live</div>
-          <script>
-            document.getElementById('inline-waitlist-form').addEventListener('submit', function(e) {
-              e.preventDefault();
-              var email = document.getElementById('inline-waitlist-email').value.trim();
-              var btn = this.querySelector('button[type="submit"]');
-              btn.disabled = true; btn.textContent = 'Sending...';
-              fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
-                .then(function(r) { return r.json(); })
-                .then(function(d) {
-                  if (d.success) {
-                    document.getElementById('inline-waitlist-form').style.display = 'none';
-                    document.getElementById('inline-waitlist-success').style.display = 'block';
-                  } else { btn.disabled = false; btn.textContent = 'Notify Me →'; alert(d.error || 'Please try again.'); }
-                })
-                .catch(function() { btn.disabled = false; btn.textContent = 'Notify Me →'; alert('Network error.'); });
-            });
-          </script>
-        </div>
-
-        <!-- Payment button (uncomment when PAYMENTS_LIVE = true):
-        <a href="/api/create-checkout" class="font-bold px-8 py-4 rounded-xl transition-colors text-[#1A2332]" style="background-color: #E8A020; font-size: 16px;"
-          onmouseover="this.style.backgroundColor='#D4901A'" onmouseout="this.style.backgroundColor='#E8A020'">
-          Get the Complete Dispute Kit — $29 →
-        </a>
-        -->
+        <span class="text-blue-300 text-sm">One-time payment. No subscription.</span>
       </div>
     </div>
   </section>

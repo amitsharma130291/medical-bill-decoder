@@ -106,14 +106,17 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <!-- Complete Access -->
-        <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column;">
+        <div style="background:#fff; border:2px solid #059669; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column; box-shadow: 0 8px 32px rgba(5,150,105,0.10);">
+          <!-- Live badge -->
+          <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#059669; color:#fff; font-size:12px; font-weight:700; padding:4px 14px; border-radius:999px; white-space:nowrap; letter-spacing:0.04em;">
+            NOW LIVE
+          </div>
           <div style="font-size:13px; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:12px;">Complete Access</div>
           <!-- Urgency badge -->
           <div style="display:inline-block; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px; width:fit-content;">🔥 Launch Price</div>
           <div style="font-size:42px; font-weight:800; color:#1A2332; line-height:1; margin-bottom:4px;">$49</div>
           <div style="font-size:13px; color:#92400E; font-weight:600; margin-bottom:4px;">Lock in this rate now — price rises with new features</div>
-          <div style="font-size:14px; color:#64748B; margin-bottom:6px;">One-time payment</div>
-          <div style="font-size:13px; color:#0F7B8C; font-weight:600; margin-bottom:24px;">$34/year launching with payments</div>
+          <div style="font-size:14px; color:#64748B; margin-bottom:24px;">One-time payment</div>
           <ul style="list-style:none; padding:0; margin:0 0 32px; flex:1;">
             <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
               <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
@@ -153,52 +156,8 @@ import Layout from '../layouts/Layout.astro';
 
       </div>
 
-      <!-- Annual note -->
-      <p style="text-align:center; color:#64748B; font-size:14px; margin-top:24px;">
-        Annual plan launching with payments at <strong>$34/year</strong> — founding members get the best rate, first 100 only.
-      </p>
 
-    </div>
-  </section>
 
-  <!-- Waitlist form -->
-  <section style="background:#fff; border-top:1px solid #E2E8F0;" class="py-14 px-4">
-    <div class="max-w-lg mx-auto text-center">
-      <h2 class="font-bold mb-3" style="font-size:24px; color:#1A2332;">Join the Waitlist</h2>
-      <p style="color:#64748B; font-size:15px; margin-bottom:24px; line-height:1.6;">
-        Be the first to know when paid features go live. Founding members get the Dispute Kit at <strong>$29</strong> (regular $39) and Complete Access at <strong>$49</strong>.
-      </p>
-      <form id="pricing-waitlist-form" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
-        <input id="pricing-waitlist-email" type="email" required placeholder="your@email.com"
-          style="flex:1; min-width:220px; padding:12px 16px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:15px; color:#1A2332; font-family:'DM Sans',sans-serif; outline:none;" />
-        <button type="submit"
-          style="padding:12px 22px; background:#E8A020; color:#1A2332; font-weight:700; border:none; border-radius:10px; font-size:15px; cursor:pointer; font-family:'DM Sans',sans-serif;">
-          Notify Me →
-        </button>
-      </form>
-      <div id="pricing-waitlist-success" style="display:none; color:#0F7B8C; font-weight:600; font-size:15px; margin-top:16px;">
-        &#10003; You're on the list — we'll email you the moment it goes live.
-      </div>
-      <script>
-        document.getElementById('pricing-waitlist-form').addEventListener('submit', function(e) {
-          e.preventDefault();
-          var email = document.getElementById('pricing-waitlist-email').value.trim();
-          var btn = this.querySelector('button[type="submit"]');
-          btn.disabled = true; btn.textContent = 'Sending...';
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'waitlist_signup', { event_category: 'conversion', event_label: 'pricing_waitlist', value: 29 });
-          }
-          fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
-            .then(function(r) { return r.json(); })
-            .then(function(d) {
-              if (d.success) {
-                document.getElementById('pricing-waitlist-form').style.display = 'none';
-                document.getElementById('pricing-waitlist-success').style.display = 'block';
-              } else { btn.disabled = false; btn.textContent = 'Notify Me →'; alert(d.error || 'Please try again.'); }
-            })
-            .catch(function() { btn.disabled = false; btn.textContent = 'Notify Me →'; alert('Network error.'); });
-        });
-      </script>
     </div>
   </section>
 
@@ -224,9 +183,9 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <div style="background:#fff; border:1px solid #E2E8F0; border-radius:12px; padding:24px 24px;">
-          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin:0 0 10px;">When will paid plans be available?</h3>
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin:0 0 10px;">Are paid plans available now?</h3>
           <p style="font-size:14px; color:#64748B; margin:0; line-height:1.65;">
-            Paid plans are launching soon. Join the waitlist above and you'll be the first to know — and the first to get the founding-member price. The first 100 members get Complete Access at $29 (the Dispute Kit price).
+            Both the Dispute Kit ($29) and Complete Access ($49) are live now — click any "Buy Now" button above to purchase instantly via Gumroad.
           </p>
         </div>
 
