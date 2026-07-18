@@ -13,6 +13,15 @@ Astro.cookies.set('paid', 'true', {
 ---
 <Layout title="Payment Successful — Complete Dispute Kit Activated" description="Thank you! Your Complete Medical Bill Dispute Kit is now active.">
 
+  <!-- Activation hint banner -->
+  <div style="background:#FFF7ED; border-bottom:1px solid #FED7AA; padding:14px 16px; text-align:center;">
+    <p style="font-size:15px; color:#92400E; font-weight:600; margin:0; line-height:1.5;">
+      🔑 Purchased the Dispute Kit?
+      <a href="/activate" style="color:#0F7B8C; text-decoration:underline; font-weight:700; margin-left:4px;">Enter your license key at /activate</a>
+      to unlock all features.
+    </p>
+  </div>
+
   <section class="min-h-[70vh] flex items-center justify-center px-4 py-20">
     <div class="max-w-2xl mx-auto text-center">
 
