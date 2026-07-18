@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const GUMROAD_PRODUCT_ID = 'KJdJAcU7znMMOui06lxdPg==';
+const GUMROAD_PRODUCT_ID = process.env.GUMROAD_PRODUCT_PERMALINK || 'fsupd';
 const GUMROAD_VERIFY_URL = 'https://api.gumroad.com/v2/licenses/verify';
 
 export const POST: APIRoute = async ({ request }) => {
