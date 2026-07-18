@@ -201,8 +201,8 @@ export default function EobDecoder() {
             <div style={{ marginTop: 24, border: '1px solid #FDE68A', background: '#FFFBEB', borderRadius: '12px', padding: '16px' }}>
               <p style={{ fontWeight: 600, color: '#78350F', margin: '0 0 8px', fontSize: 14, fontFamily: 'DM Sans, sans-serif' }}>🔒 Paid analysis also includes:</p>
               <ul style={{ fontSize: 13, color: '#92400E', margin: '0 0 14px', padding: '0 0 0 0', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <li>• Step-by-step dispute instructions for your specific denial code</li>
-                <li>• Exact language to use when calling your insurer</li>
+                <li>• Which of these issues insurers actually reverse (not all are worth fighting)</li>
+                <li>• Exact language to use — matched to your specific denial code</li>
                 <li>• Which sections of your EOB to challenge and why</li>
                 <li>• A ready-to-send dispute letter with PDF download</li>
               </ul>

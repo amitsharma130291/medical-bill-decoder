@@ -87,11 +87,13 @@ Use plain English — no jargon.`
       : `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
 
 Provide:
-1. A clear summary of what the EOB says in simple terms
-2. What the patient actually owes and why
-3. Any obvious red flags or areas worth reviewing
+1. **Plain English explanation** — what the EOB says in plain terms: what each charge is, what the insurer paid, and what the patient owes
+2. **Issues identified** — list each problem or concern by name/type only (e.g. "CO-45 denial code", "possible duplicate charge", "balance billing concern", "bundling error") — name the issue but do not advise on it or explain what to do about it
 
-Keep your response helpful but brief. Mention that the Complete Dispute Kit (upgrade) provides full dispute guidance and step-by-step instructions.`;
+End your response with this exact closing line:
+"To find out which of these issues insurers commonly reverse — and the exact language to use — upgrade to the Dispute Kit."
+
+Do not include any dispute advice, likelihood of success, next steps, or recommendations on what to do. Stop at identifying and naming what is happening and what was found.`;
 
     const completion = await openai.chat.completions.create({
       model,
