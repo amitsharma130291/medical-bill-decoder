@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
 
 const PRODUCTS = [
-  { permalink: 'fsupd', tier: 'dispute-kit' },
-  { permalink: 'rslhtn', tier: 'complete-access' },
+  { permalink: 'fsupd', tier: 'dispute-kit', label: '$29 Dispute Kit' },
+  { permalink: 'M8UBj0ZwYYv4ybnjN4McpQ==', tier: 'complete-access', label: '$49 Complete Access' },
 ];
 
 export const POST: APIRoute = async ({ request }) => {
