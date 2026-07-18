@@ -1,8 +1,16 @@
 import type { APIRoute } from 'astro';
 
+// ---------------------------------------------------------------------------
+// SESSION_PASS_PRODUCT_ID: replace with the base64 product ID from Gumroad
+// once the operator creates the $9 7-Day Session Pass product.
+// Example: 'REPLACE_WITH_GUMROAD_BASE64_PRODUCT_ID'
+// ---------------------------------------------------------------------------
+const SESSION_PASS_PRODUCT_ID = 'REPLACE_WITH_GUMROAD_BASE64_PRODUCT_ID';
+
 const PRODUCTS = [
   { permalink: 'fsupd', tier: 'dispute-kit', label: '$29 Dispute Kit' },
   { permalink: 'M8UBj0ZwYYv4ybnjN4McpQ==', tier: 'complete-access', label: '$49 Complete Access' },
+  { permalink: SESSION_PASS_PRODUCT_ID, tier: 'session-pass', label: '$9 7-Day Session Pass' },
 ];
 
 export const POST: APIRoute = async ({ request }) => {
@@ -39,7 +47,12 @@ export const POST: APIRoute = async ({ request }) => {
       });
       const data = await res.json();
       if (data.success) {
-        return new Response(JSON.stringify({ success: true, tier: product.tier }), { status: 200 });
+        const responsePayload: Record<string, unknown> = { success: true, tier: product.tier };
+        // For session-pass: include a 7-day expiry timestamp the client will store as a cookie
+        if (product.tier === 'session-pass') {
+          responsePayload.sessionExpiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+        }
+        return new Response(JSON.stringify(responsePayload), { status: 200 });
       }
     }
 

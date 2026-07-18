@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 
 const DAILY_LIMIT = 3;
 const PAID_DAILY_LIMIT = 20;
+const SESSION_PASS_DAILY_LIMIT = 50;
 const COMPLETE_ACCESS_DAILY_LIMIT = 50;
 
 function getTodayKey() {
@@ -45,8 +46,21 @@ export const POST: APIRoute = async ({ request }) => {
     const isPaid = cookies['paid'] === 'true';
     const tier = cookies['tier'] || (isPaid ? 'dispute-kit' : 'free');
     const isCompleteAccess = tier === 'complete-access';
+    const isSessionPass = tier === 'session-pass';
 
-    if (!isPaid && count >= DAILY_LIMIT) {
+    // session-pass: verify the session hasn't expired — if expired, treat as free
+    const effectiveTier = (() => {
+      if (isSessionPass) {
+        const sessionExpires = parseInt(cookies['session_expires'] || '0', 10);
+        if (!sessionExpires || sessionExpires <= Date.now()) return 'free';
+      }
+      return tier;
+    })();
+    const effectivelyPaid = effectiveTier !== 'free' && isPaid;
+    const effectivelySessionPass = effectiveTier === 'session-pass';
+    const effectivelyCompleteAccess = effectiveTier === 'complete-access';
+
+    if (!effectivelyPaid && count >= DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'Daily limit reached. Upgrade to the Complete Dispute Kit for up to 20 decodes per day.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
@@ -55,14 +69,20 @@ export const POST: APIRoute = async ({ request }) => {
 
     const paidKey = getPaidTodayKey();
     const paidCount = parseInt(cookies[paidKey] || '0', 10);
-    // complete-access is capped at COMPLETE_ACCESS_DAILY_LIMIT; dispute-kit is capped at PAID_DAILY_LIMIT
-    if (isPaid && isCompleteAccess && paidCount >= COMPLETE_ACCESS_DAILY_LIMIT) {
+    // complete-access: 50/day; session-pass: 50/day; dispute-kit: 20/day
+    if (effectivelyPaid && effectivelyCompleteAccess && paidCount >= COMPLETE_ACCESS_DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'You have reached your 50 decode limit for today. Your limit resets at midnight.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    if (isPaid && !isCompleteAccess && paidCount >= PAID_DAILY_LIMIT) {
+    if (effectivelyPaid && effectivelySessionPass && paidCount >= SESSION_PASS_DAILY_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: 'You have reached your 50 decode limit for today. Your limit resets at midnight.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    if (effectivelyPaid && !effectivelyCompleteAccess && !effectivelySessionPass && paidCount >= PAID_DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight. Thank you for using the Complete Dispute Kit!' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
@@ -73,7 +93,7 @@ export const POST: APIRoute = async ({ request }) => {
     // all tiers use gpt-4o-mini for consistent unit economics
     const model = 'gpt-4o-mini';
 
-    const systemPrompt = isPaid
+    const systemPrompt = effectivelyPaid
       ? `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
 
 Provide:
@@ -113,10 +133,10 @@ Do not include any dispute advice, likelihood of success, next steps, or recomme
     tomorrow.setHours(0, 0, 0, 0);
 
     const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (!isPaid) {
+    if (!effectivelyPaid) {
       responseHeaders['Set-Cookie'] = `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
     } else {
-      // track usage for both complete-access (50/day) and dispute-kit (20/day)
+      // track usage for all paid tiers
       responseHeaders['Set-Cookie'] = `${paidKey}=${paidCount + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
     }
 

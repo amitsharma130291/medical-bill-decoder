@@ -206,14 +206,29 @@ export default function EobDecoder() {
                 <li>• Which sections of your EOB to challenge and why</li>
                 <li>• A ready-to-send dispute letter with PDF download</li>
               </ul>
-              <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
-                style={{
-                  display: 'inline-block', background: TEAL, color: '#fff',
-                  padding: '8px 16px', borderRadius: '8px', fontSize: 13,
-                  fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif',
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#78350F', margin: '0 0 10px', fontFamily: 'DM Sans, sans-serif', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Choose your plan:</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {/* $9 7-Day Pass — Coming Soon (greyed out) */}
+                <button disabled style={{
+                  display: 'block', width: '100%', textAlign: 'center',
+                  background: '#D1D5DB', color: '#6B7280',
+                  padding: '9px 16px', borderRadius: '8px', fontSize: 13,
+                  fontWeight: 600, fontFamily: 'DM Sans, sans-serif',
+                  border: 'none', cursor: 'not-allowed',
                 }}>
-                Unlock for $29 →
-              </a>
+                  Try for $9 — 7-day access (Coming Soon)
+                </button>
+                {/* $29 Dispute Kit — primary */}
+                <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
+                  style={{
+                    display: 'block', textAlign: 'center',
+                    background: TEAL, color: '#fff',
+                    padding: '9px 16px', borderRadius: '8px', fontSize: 13,
+                    fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif',
+                  }}>
+                  Unlock for $29 — permanent + PDF →
+                </a>
+              </div>
             </div>
           )}
         </div>

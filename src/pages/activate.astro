@@ -136,13 +136,16 @@ import Layout from '../layouts/Layout.astro';
                 if (data.tier) localStorage.setItem('mbd_tier', data.tier);
               } catch(e) {}
 
-              // Set cookies (30 days)
-              var expires = new Date();
-              expires.setDate(expires.getDate() + 30);
-              var maxAge = 30 * 24 * 60 * 60;
+              // For session-pass: 7-day cookie lifetime; otherwise 30 days
+              var isSessionPass = data.tier === 'session-pass';
+              var maxAge = isSessionPass ? 7 * 24 * 60 * 60 : 30 * 24 * 60 * 60;
               document.cookie = 'paid=true; max-age=' + maxAge + '; path=/; SameSite=Lax';
               if (data.tier) {
                 document.cookie = 'tier=' + data.tier + '; max-age=' + maxAge + '; path=/; SameSite=Lax';
+              }
+              // session-pass: store expiry timestamp for server-side expiry check in decode-eob and dispute-letter
+              if (isSessionPass && data.sessionExpiresAt) {
+                document.cookie = 'session_expires=' + data.sessionExpiresAt + '; max-age=' + maxAge + '; path=/; SameSite=Lax';
               }
 
               // Show success, hide form
