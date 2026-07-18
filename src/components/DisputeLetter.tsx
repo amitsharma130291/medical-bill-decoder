@@ -33,6 +33,11 @@ function isPaid(): boolean {
   if (typeof document === 'undefined') return false;
   return document.cookie.split(';').some(c => c.trim() === 'paid=true');
 }
+function isCompleteAccess(): boolean {
+  if (typeof document === 'undefined') return false;
+  const tier = document.cookie.split(';').find(c => c.trim().startsWith('tier='))?.split('=')?.[1]?.trim();
+  return tier === 'complete-access';
+}
 function hasUsedFreeLetter(): boolean {
   if (typeof sessionStorage === 'undefined') return false;
   return sessionStorage.getItem('dispute_letter_used') === 'true';
@@ -160,9 +165,11 @@ export default function DisputeLetter() {
   const [error, setError] = useState('');
 
   const paid = isPaid();
+  const completeAccess = isCompleteAccess();
   const alreadyUsed = hasUsedFreeLetter();
   const paidLetterCount = getPaidLetterCount();
-  const paidLetterBlocked = paid && paidLetterCount >= PAID_LETTER_LIMIT;
+  // complete-access tier ($49) has unlimited letters; dispute-kit ($19) is capped at PAID_LETTER_LIMIT
+  const paidLetterBlocked = paid && !completeAccess && paidLetterCount >= PAID_LETTER_LIMIT;
   const blocked = (!paid && alreadyUsed) || paidLetterBlocked;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -183,7 +190,8 @@ export default function DisputeLetter() {
     setError('');
     setLetter(generateLetter(fields));
     if (!paid) markLetterUsed();
-    if (paid) incrementPaidLetterCount();
+    // track count for dispute-kit tier only (complete-access is unlimited)
+    if (paid && !completeAccess) incrementPaidLetterCount();
   }
 
   function handleCopy() {
