@@ -1,5 +1,10 @@
 import type { APIRoute } from 'astro';
 
+const PRODUCTS = [
+  { permalink: 'fsupd', tier: 'dispute-kit', label: '$29 Dispute Kit' },
+  { permalink: 'rslhtn', tier: 'complete-access', label: '$49 Complete Access' },
+];
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
@@ -20,25 +25,29 @@ export const POST: APIRoute = async ({ request }) => {
       .replace(/I/g, '1')   // letter I → digit one
       .replace(/\s/g, '');  // strip any stray whitespace
 
-    const params = new URLSearchParams();
-    params.append('product_id', 'KJdJAcU7znMMOui06IxdPg==');  // Gumroad internal product ID (confirmed via API test)
-    params.append('license_key', normalizedKey);
-    params.append('increment_uses_count', body.renew ? 'false' : 'true');
+    // Try each product in order — first successful verification wins
+    for (const product of PRODUCTS) {
+      const params = new URLSearchParams();
+      params.append('product_permalink', product.permalink);
+      params.append('license_key', normalizedKey);
+      params.append('increment_uses_count', body.renew ? 'false' : 'true');
 
-    const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString(),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      return new Response(JSON.stringify({ success: true, tier: 'dispute-kit' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
       });
+
+      const data = await res.json();
+
+      if (data.success) {
+        return new Response(JSON.stringify({ success: true, tier: product.tier }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
+
     return new Response(
       JSON.stringify({ success: false, error: 'Invalid license key. Please check and try again.' }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
