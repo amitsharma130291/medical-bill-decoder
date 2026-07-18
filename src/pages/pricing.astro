@@ -23,7 +23,7 @@ import Layout from '../layouts/Layout.astro';
   <section class="py-16 px-4" style="background: #F7F8FA;">
     <div class="max-w-5xl mx-auto">
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
         <!-- Free Tier -->
         <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column;">
@@ -51,6 +51,41 @@ import Layout from '../layouts/Layout.astro';
           <a href="/eob-decoder" style="display:block; text-align:center; padding:13px 20px; border:2px solid #0F7B8C; border-radius:10px; color:#0F7B8C; font-weight:700; font-size:15px; text-decoration:none; transition:background 0.15s;" onmouseover="this.style.background='#F0FAFB'" onmouseout="this.style.background='transparent'">
             Start Free →
           </a>
+        </div>
+
+        <!-- 7-Day Session Pass (Coming Soon) -->
+        <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column; opacity:0.85;">
+          <!-- Coming Soon badge -->
+          <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#94A3B8; color:#fff; font-size:12px; font-weight:700; padding:4px 14px; border-radius:999px; white-space:nowrap; letter-spacing:0.04em;">
+            COMING SOON
+          </div>
+          <div style="font-size:13px; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:12px;">7-Day Pass</div>
+          <!-- Urgency badge -->
+          <div style="display:inline-block; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px; width:fit-content;">🔥 Best for a single billing event</div>
+          <div style="font-size:42px; font-weight:800; color:#1A2332; line-height:1; margin-bottom:6px;">$9</div>
+          <div style="font-size:14px; color:#64748B; margin-bottom:6px;">One-time payment</div>
+          <div style="font-size:14px; color:#334155; font-style:italic; margin-bottom:18px;">For one billing event. Full access for 7 days, then expires.</div>
+          <ul style="list-style:none; padding:0; margin:0 0 32px; flex:1;">
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>Unlimited EOB decodes for 7 days</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>Full dispute strategy with each decode</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>20 dispute letters per day</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#64748B;">
+              <span style="color:#94A3B8; font-weight:700; margin-top:1px;">✗</span>
+              <span>No PDF download (available in Dispute Kit)</span>
+            </li>
+          </ul>
+          <button disabled style="display:block; width:100%; text-align:center; padding:13px 20px; background:#D1D5DB; border:none; border-radius:10px; color:#6B7280; font-weight:700; font-size:15px; cursor:not-allowed; font-family:inherit;">
+            Coming Soon
+          </button>
         </div>
 
         <!-- Dispute Kit -->

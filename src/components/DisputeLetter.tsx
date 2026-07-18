@@ -29,6 +29,7 @@ const US_STATES = [
 
 const FREE_LETTER_LIMIT = 3;
 const PAID_LETTER_LIMIT = 20;
+const SESSION_PASS_LETTER_LIMIT = 20;
 const COMPLETE_ACCESS_LETTER_LIMIT = 50;
 
 function getTodayKey(): string {
@@ -39,10 +40,20 @@ function isPaid(): boolean {
   if (typeof document === 'undefined') return false;
   return document.cookie.split(';').some(c => c.trim() === 'paid=true');
 }
+function getTier(): string {
+  if (typeof document === 'undefined') return 'free';
+  return document.cookie.split(';').find(c => c.trim().startsWith('tier='))?.split('=')?.[1]?.trim() || 'free';
+}
 function isCompleteAccess(): boolean {
+  return getTier() === 'complete-access';
+}
+function isSessionPass(): boolean {
   if (typeof document === 'undefined') return false;
-  const tier = document.cookie.split(';').find(c => c.trim().startsWith('tier='))?.split('=')?.[1]?.trim();
-  return tier === 'complete-access';
+  if (getTier() !== 'session-pass') return false;
+  // Verify session hasn't expired
+  const match = document.cookie.split(';').find(c => c.trim().startsWith('session_expires='));
+  const expiresAt = match ? parseInt(match.split('=')[1]?.trim() || '0', 10) : 0;
+  return expiresAt > Date.now();
 }
 
 // Free tier: date-keyed localStorage counter — resets automatically each new day
@@ -181,12 +192,21 @@ export default function DisputeLetter() {
 
   const paid = isPaid();
   const completeAccess = isCompleteAccess();
+  const sessionPass = isSessionPass();
+  // If session-pass cookie exists but is expired, treat as free
+  const effectivelyPaid = paid && (completeAccess || sessionPass || (!completeAccess && getTier() === 'dispute-kit'));
   const freeLetterCount = getFreeLetterCount();
-  const freeExhausted = !paid && freeLetterCount >= FREE_LETTER_LIMIT;
+  const freeExhausted = !effectivelyPaid && freeLetterCount >= FREE_LETTER_LIMIT;
   const paidLetterCount = getPaidLetterCount();
-  // complete-access tier ($49) is capped at COMPLETE_ACCESS_LETTER_LIMIT/day; dispute-kit ($29) at PAID_LETTER_LIMIT/day
-  const paidLetterBlocked = paid && (completeAccess ? paidLetterCount >= COMPLETE_ACCESS_LETTER_LIMIT : paidLetterCount >= PAID_LETTER_LIMIT);
+  // complete-access: 50/day; session-pass: 20/day; dispute-kit: 20/day
+  const paidLetterBlocked = effectivelyPaid && (
+    completeAccess ? paidLetterCount >= COMPLETE_ACCESS_LETTER_LIMIT :
+    sessionPass ? paidLetterCount >= SESSION_PASS_LETTER_LIMIT :
+    paidLetterCount >= PAID_LETTER_LIMIT
+  );
   const blocked = freeExhausted || paidLetterBlocked;
+  // PDF is only available to dispute-kit ($29) and complete-access ($49), NOT session-pass
+  const pdfUnlocked = effectivelyPaid && !sessionPass;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setFields(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -201,14 +221,14 @@ export default function DisputeLetter() {
       setError(`You have used all ${FREE_LETTER_LIMIT} free dispute letters for today. Upgrade for up to 20 letters per day, or try again tomorrow.`); return;
     }
     if (paidLetterBlocked) {
-      const limit = completeAccess ? COMPLETE_ACCESS_LETTER_LIMIT : PAID_LETTER_LIMIT;
+      const limit = completeAccess ? COMPLETE_ACCESS_LETTER_LIMIT : SESSION_PASS_LETTER_LIMIT;
       setError(`You have reached your daily limit of ${limit} dispute letters. Please try again tomorrow.`); return;
     }
     setError('');
     setLetter(generateLetter(fields));
-    if (!paid) incrementFreeLetterCount();
-    // track count for all paid tiers (both dispute-kit and complete-access have daily caps)
-    if (paid) incrementPaidLetterCount();
+    if (!effectivelyPaid) incrementFreeLetterCount();
+    // track count for all paid tiers
+    if (effectivelyPaid) incrementPaidLetterCount();
   }
 
   function handleCopy() {
@@ -227,14 +247,14 @@ export default function DisputeLetter() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Tier notice */}
-        {!paid && (
+        {!effectivelyPaid && (
           <div style={{
-            background: alreadyUsed ? '#FFFBEB' : '#EFF9FA',
-            border: `1px solid ${alreadyUsed ? '#FCD34D' : BORDER}`,
+            background: freeExhausted ? '#FFFBEB' : '#EFF9FA',
+            border: `1px solid ${freeExhausted ? '#FCD34D' : BORDER}`,
             borderRadius: '12px', padding: '14px 16px',
             display: 'flex', alignItems: 'flex-start', gap: 10,
           }}>
-            <svg style={{ width: 18, height: 18, color: alreadyUsed ? AMBER : TEAL, flexShrink: 0, marginTop: 2 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: 18, height: 18, color: freeExhausted ? AMBER : TEAL, flexShrink: 0, marginTop: 2 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <p style={{ fontSize: 13, color: INK, margin: 0 }}>
@@ -334,8 +354,8 @@ export default function DisputeLetter() {
                   fontSize: 13, fontFamily: 'DM Sans, sans-serif',
                 }}>Copy</button>
 
-                {/* PDF Download: paid users get real button; unpaid get locked state */}
-                {paid ? (
+                {/* PDF Download: dispute-kit and complete-access only; session-pass sees locked state */}
+                {pdfUnlocked ? (
                   <button onClick={handleDownloadPDF} style={{
                     background: TEAL, color: '#fff', fontWeight: 600, padding: '8px 16px',
                     borderRadius: '8px', border: 'none', cursor: 'pointer',
