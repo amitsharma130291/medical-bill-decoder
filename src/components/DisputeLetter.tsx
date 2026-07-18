@@ -347,18 +347,22 @@ export default function DisputeLetter() {
                       Unlock PDF — $29
                     </a>
                   ) : (
-                    <span title="PDF download included with Complete Dispute Kit" style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      background: '#D1D5DB', color: '#6B7280', fontWeight: 600,
-                      padding: '8px 16px', borderRadius: '8px',
-                      fontSize: 13, fontFamily: 'DM Sans, sans-serif',
-                      cursor: 'not-allowed',
-                    }}>
-                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                      </svg>
-                      PDF — Complete Kit ($29)
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: INK, margin: 0, fontFamily: 'DM Sans, sans-serif' }}>This letter is ready to send.</p>
+                      <p style={{ fontSize: 12, color: MUTED, margin: 0, fontFamily: 'DM Sans, sans-serif' }}>Download as PDF to keep a clean formatted copy — or copy the text above.</p>
+                      <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener" style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: TEAL, color: '#fff', fontWeight: 600,
+                        padding: '8px 16px', borderRadius: '8px',
+                        fontSize: 13, fontFamily: 'DM Sans, sans-serif',
+                        textDecoration: 'none', marginTop: 4,
+                      }}>
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Download as PDF — $29 →
+                      </a>
+                    </div>
                   )
                 )}
               </div>

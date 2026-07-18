@@ -198,33 +198,22 @@ export default function EobDecoder() {
           <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: marked(result) as string }} />
 
           {!paid && (
-            <div style={{ marginTop: 24, padding: '20px', background: '#EFF9FA', border: `1px solid ${BORDER}`, borderRadius: '12px' }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: INK, margin: '0 0 6px' }}>Want full dispute guidance?</p>
-              <p style={{ fontSize: 13, color: MUTED, margin: '0 0 14px', lineHeight: 1.5 }}>
-                The Complete Dispute Kit includes step-by-step dispute instructions, state-specific guides, and up to 20 decodes per day.
-              </p>
-              {PAYMENTS_LIVE ? (
-                <a href="/api/create-checkout" style={{
-                  display: 'inline-block', background: AMBER, color: INK,
-                  fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
-                  fontSize: 14, textDecoration: 'none',
+            <div style={{ marginTop: 24, border: '1px solid #FDE68A', background: '#FFFBEB', borderRadius: '12px', padding: '16px' }}>
+              <p style={{ fontWeight: 600, color: '#78350F', margin: '0 0 8px', fontSize: 14, fontFamily: 'DM Sans, sans-serif' }}>🔒 Paid analysis also includes:</p>
+              <ul style={{ fontSize: 13, color: '#92400E', margin: '0 0 14px', padding: '0 0 0 0', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <li>• Step-by-step dispute instructions for your specific denial code</li>
+                <li>• Exact language to use when calling your insurer</li>
+                <li>• Which sections of your EOB to challenge and why</li>
+                <li>• A ready-to-send dispute letter with PDF download</li>
+              </ul>
+              <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
+                style={{
+                  display: 'inline-block', background: TEAL, color: '#fff',
+                  padding: '8px 16px', borderRadius: '8px', fontSize: 13,
+                  fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif',
                 }}>
-                  Upgrade for $29 →
-                </a>
-              ) : (
-                <div>
-                  <span style={{
-                    display: 'inline-block', background: '#D1D5DB', color: '#6B7280',
-                    fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
-                    fontSize: 14, cursor: 'not-allowed',
-                  }}>
-                    Coming Soon — $29
-                  </span>
-                  <p style={{ fontSize: 12, color: MUTED, marginTop: 8, marginBottom: 0 }}>
-                    <a href="/pricing" style={{ color: TEAL, textDecoration: 'underline' }}>View pricing</a> — now live!
-                  </p>
-                </div>
-              )}
+                Unlock for $29 →
+              </a>
             </div>
           )}
         </div>
