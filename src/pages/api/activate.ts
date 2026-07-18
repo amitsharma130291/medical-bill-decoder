@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
       .replace(/\s/g, '');  // strip any stray whitespace
 
     const params = new URLSearchParams();
-    params.append('product_permalink', 'fsupd');  // Gumroad API requires product_permalink, not product_id
+    params.append('product_id', 'KJdJAcU7znMMOui06IxdPg==');  // Gumroad internal product ID (confirmed via API test)
     params.append('license_key', normalizedKey);
     params.append('increment_uses_count', body.renew ? 'false' : 'true');
 
