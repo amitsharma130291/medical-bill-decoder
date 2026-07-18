@@ -27,7 +27,7 @@ function parseCookies(cookieHeader: string | null): Record<string, string> {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { eobText, paid } = body;
+    const { eobText } = body;
 
     if (!eobText || typeof eobText !== 'string' || eobText.trim().length < 10) {
       return new Response(JSON.stringify({ error: 'Please provide valid EOB text.' }), {
@@ -36,12 +36,12 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Rate limiting via cookies (server-side check)
+    // Rate limiting via cookies only (never trust client-supplied paid/tier in the body)
     const cookieHeader = request.headers.get('cookie');
     const cookies = parseCookies(cookieHeader);
     const todayKey = getTodayKey();
     const count = parseInt(cookies[todayKey] || '0', 10);
-    const isPaid = cookies['paid'] === 'true' || paid === true;
+    const isPaid = cookies['paid'] === 'true';
     const tier = cookies['tier'] || (isPaid ? 'dispute-kit' : 'free');
     const isCompleteAccess = tier === 'complete-access';
 
