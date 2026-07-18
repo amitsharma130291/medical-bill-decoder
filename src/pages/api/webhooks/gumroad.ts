@@ -34,7 +34,15 @@ export const POST: APIRoute = async ({ request }) => {
       const fullName = body['full_name'] || '';
 
       if (email && licenseKey) {
-        const resend = new Resend(process.env.RESEND_API_KEY);
+        // Check RESEND_API_KEY early so we get a clear error, not a generic "parse error"
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (!resendApiKey) {
+          console.error('[gumroad-webhook] RESEND_API_KEY is not set — cannot send activation email to', email);
+          // Still return 200 so Gumroad does not retry (retries won't help without the key)
+          return new Response('OK', { status: 200 });
+        }
+
+        const resend = new Resend(resendApiKey);
         const activateUrl = `https://eobdecoder.com/activate?key=${licenseKey}`;
         const greeting = fullName ? `Hi ${fullName.split(' ')[0]},` : 'Hi there,';
 
@@ -46,7 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
         const subject = subjects[productPermalink] || 'Activate your EOB Decoder access';
 
         try {
-          await resend.emails.send({
+          const result = await resend.emails.send({
             from: 'EOB Decoder <noreply@eobdecoder.com>',
             to: email,
             subject,
@@ -65,19 +73,24 @@ export const POST: APIRoute = async ({ request }) => {
 </body>
 </html>`,
           });
-          console.log('[gumroad-webhook] activation email sent to', email);
+
+          if (result.error) {
+            console.error('[gumroad-webhook] Resend API error for', email, ':', JSON.stringify(result.error));
+          } else {
+            console.log('[gumroad-webhook] activation email sent to', email, '— id:', result.data?.id);
+          }
         } catch (emailErr) {
-          console.error('[gumroad-webhook] email send failed:', emailErr);
+          console.error('[gumroad-webhook] email send threw for', email, ':', emailErr);
           // Still return 200 — don't let email failure cause Gumroad to retry
         }
       } else {
-        console.log('[gumroad-webhook] sale event missing email or license_key — skipping email');
+        console.log('[gumroad-webhook] sale event missing email or license_key — skipping email. email:', email, 'licenseKey:', licenseKey ? '[present]' : '[missing]');
       }
     } else {
-      console.log('[gumroad-webhook] non-sale event, ignoring');
+      console.log('[gumroad-webhook] non-sale event, ignoring. resource_name:', body['resource_name']);
     }
   } catch (err) {
-    console.error('[gumroad-webhook] parse error:', err);
+    console.error('[gumroad-webhook] unexpected error processing webhook:', err);
   }
 
   // Always return 200 so Gumroad does not retry
