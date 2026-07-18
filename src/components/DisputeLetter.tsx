@@ -27,8 +27,13 @@ const US_STATES = [
   'Wisconsin','Wyoming',
 ];
 
+const FREE_LETTER_LIMIT = 3;
 const PAID_LETTER_LIMIT = 20;
 const COMPLETE_ACCESS_LETTER_LIMIT = 50;
+
+function getTodayKey(): string {
+  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+}
 
 function isPaid(): boolean {
   if (typeof document === 'undefined') return false;
@@ -39,20 +44,29 @@ function isCompleteAccess(): boolean {
   const tier = document.cookie.split(';').find(c => c.trim().startsWith('tier='))?.split('=')?.[1]?.trim();
   return tier === 'complete-access';
 }
-function hasUsedFreeLetter(): boolean {
-  if (typeof sessionStorage === 'undefined') return false;
-  return sessionStorage.getItem('dispute_letter_used') === 'true';
+
+// Free tier: date-keyed localStorage counter — resets automatically each new day
+function getFreeLetterCount(): number {
+  if (typeof localStorage === 'undefined') return 0;
+  const key = `free_letter_count_${getTodayKey()}`;
+  return parseInt(localStorage.getItem(key) || '0', 10);
 }
-function markLetterUsed() {
-  if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('dispute_letter_used', 'true');
+function incrementFreeLetterCount() {
+  if (typeof localStorage === 'undefined') return;
+  const key = `free_letter_count_${getTodayKey()}`;
+  localStorage.setItem(key, String(getFreeLetterCount() + 1));
 }
+
+// Paid tiers: date-keyed localStorage counter — resets automatically each new day
 function getPaidLetterCount(): number {
   if (typeof localStorage === 'undefined') return 0;
-  return parseInt(localStorage.getItem('paid_letter_count') || '0', 10);
+  const key = `paid_letter_count_${getTodayKey()}`;
+  return parseInt(localStorage.getItem(key) || '0', 10);
 }
 function incrementPaidLetterCount() {
   if (typeof localStorage === 'undefined') return;
-  localStorage.setItem('paid_letter_count', String(getPaidLetterCount() + 1));
+  const key = `paid_letter_count_${getTodayKey()}`;
+  localStorage.setItem(key, String(getPaidLetterCount() + 1));
 }
 
 function generateLetter(f: { patientName: string; providerName: string; billDate: string; disputeReason: string; state: string }) {
@@ -167,11 +181,12 @@ export default function DisputeLetter() {
 
   const paid = isPaid();
   const completeAccess = isCompleteAccess();
-  const alreadyUsed = hasUsedFreeLetter();
+  const freeLetterCount = getFreeLetterCount();
+  const freeExhausted = !paid && freeLetterCount >= FREE_LETTER_LIMIT;
   const paidLetterCount = getPaidLetterCount();
-  // complete-access tier ($49) is capped at COMPLETE_ACCESS_LETTER_LIMIT/day; dispute-kit ($19) at PAID_LETTER_LIMIT/day
+  // complete-access tier ($49) is capped at COMPLETE_ACCESS_LETTER_LIMIT/day; dispute-kit ($29) at PAID_LETTER_LIMIT/day
   const paidLetterBlocked = paid && (completeAccess ? paidLetterCount >= COMPLETE_ACCESS_LETTER_LIMIT : paidLetterCount >= PAID_LETTER_LIMIT);
-  const blocked = (!paid && alreadyUsed) || paidLetterBlocked;
+  const blocked = freeExhausted || paidLetterBlocked;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setFields(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -182,8 +197,8 @@ export default function DisputeLetter() {
     if (!patientName || !providerName || !billDate || !disputeReason || !state) {
       setError('Please fill in all 5 fields before generating your letter.'); return;
     }
-    if (!paid && alreadyUsed) {
-      setError('You have already generated 1 free dispute letter this session. Upgrade for up to 20 letters.'); return;
+    if (freeExhausted) {
+      setError(`You have used all ${FREE_LETTER_LIMIT} free dispute letters for today. Upgrade for up to 20 letters per day, or try again tomorrow.`); return;
     }
     if (paidLetterBlocked) {
       const limit = completeAccess ? COMPLETE_ACCESS_LETTER_LIMIT : PAID_LETTER_LIMIT;
@@ -191,7 +206,7 @@ export default function DisputeLetter() {
     }
     setError('');
     setLetter(generateLetter(fields));
-    if (!paid) markLetterUsed();
+    if (!paid) incrementFreeLetterCount();
     // track count for all paid tiers (both dispute-kit and complete-access have daily caps)
     if (paid) incrementPaidLetterCount();
   }
@@ -223,12 +238,12 @@ export default function DisputeLetter() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <p style={{ fontSize: 13, color: INK, margin: 0 }}>
-              {alreadyUsed
-                ? <>Free letter used. {PAYMENTS_LIVE
+              {freeExhausted
+                ? <>Daily free letters used ({FREE_LETTER_LIMIT}/{FREE_LETTER_LIMIT}). {PAYMENTS_LIVE
                     ? <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($29)</a>
                     : <a href="/#complete-kit" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Complete Dispute Kit — coming soon</a>
                   } for up to 20 letters per day.</>
-                : <><strong>Free tier:</strong> 1 dispute letter per session. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for up to 20 letters →</a></>
+                : <><strong>Free tier:</strong> {freeLetterCount}/{FREE_LETTER_LIMIT} letters used today. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for up to 20 letters/day →</a></>
               }
             </p>
           </div>
@@ -305,7 +320,7 @@ export default function DisputeLetter() {
         }}
           onMouseOver={e => { if (!blocked) e.currentTarget.style.background = '#243D66'; }}
           onMouseOut={e => { if (!blocked) e.currentTarget.style.background = BLUE; }}>
-          {blocked ? 'Free Letter Used — Upgrade to Continue' : 'Generate My Dispute Letter'}
+          {blocked ? (paidLetterBlocked ? `Daily limit reached — Try again tomorrow` : `Daily free letters used — Upgrade to Continue`) : 'Generate My Dispute Letter'}
         </button>
 
         {letter && (
