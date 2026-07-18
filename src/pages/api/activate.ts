@@ -5,7 +5,7 @@ const SESSION_PASS_PRODUCT_ID = 'kQcItDBcIQlop-ccKgEESg==';
 
 const PRODUCTS = [
   { permalink: SESSION_PASS_PRODUCT_ID, tier: 'session-pass', label: '$9 Session Pass' },
-  { permalink: 'fsupd', tier: 'dispute-kit', label: '$29 Dispute Kit' },
+  { permalink: 'KJdJAcU7znMMOui06IxdPg==', tier: 'dispute-kit', label: '$29 Dispute Kit' },
   { permalink: 'M8UBj0ZwYYv4ybnjN4McpQ==', tier: 'complete-access', label: '$49 Complete Access' },
 ];
 
