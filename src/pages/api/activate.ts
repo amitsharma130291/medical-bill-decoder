@@ -15,6 +15,10 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    // On silent auto-renewal (renew: true), do NOT increment uses count.
+    // On first activation, increment so Gumroad tracks the activation.
+    const isRenewal = body.renew === true;
+
     // Verify with Gumroad (public endpoint, no auth needed)
     const gumroadRes = await fetch(GUMROAD_VERIFY_URL, {
       method: 'POST',
@@ -22,6 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
       body: new URLSearchParams({
         product_id: GUMROAD_PRODUCT_ID,
         license_key: licenseKey,
+        increment_uses_count: isRenewal ? 'false' : 'true',
       }),
     });
 
