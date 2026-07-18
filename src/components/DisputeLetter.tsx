@@ -28,6 +28,7 @@ const US_STATES = [
 ];
 
 const PAID_LETTER_LIMIT = 20;
+const COMPLETE_ACCESS_LETTER_LIMIT = 50;
 
 function isPaid(): boolean {
   if (typeof document === 'undefined') return false;
@@ -168,8 +169,8 @@ export default function DisputeLetter() {
   const completeAccess = isCompleteAccess();
   const alreadyUsed = hasUsedFreeLetter();
   const paidLetterCount = getPaidLetterCount();
-  // complete-access tier ($49) has unlimited letters; dispute-kit ($19) is capped at PAID_LETTER_LIMIT
-  const paidLetterBlocked = paid && !completeAccess && paidLetterCount >= PAID_LETTER_LIMIT;
+  // complete-access tier ($49) is capped at COMPLETE_ACCESS_LETTER_LIMIT/day; dispute-kit ($19) at PAID_LETTER_LIMIT/day
+  const paidLetterBlocked = paid && (completeAccess ? paidLetterCount >= COMPLETE_ACCESS_LETTER_LIMIT : paidLetterCount >= PAID_LETTER_LIMIT);
   const blocked = (!paid && alreadyUsed) || paidLetterBlocked;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -185,13 +186,14 @@ export default function DisputeLetter() {
       setError('You have already generated 1 free dispute letter this session. Upgrade for up to 20 letters.'); return;
     }
     if (paidLetterBlocked) {
-      setError(`You have reached your limit of ${PAID_LETTER_LIMIT} dispute letters. Thank you for using the Complete Dispute Kit!`); return;
+      const limit = completeAccess ? COMPLETE_ACCESS_LETTER_LIMIT : PAID_LETTER_LIMIT;
+      setError(`You have reached your daily limit of ${limit} dispute letters. Please try again tomorrow.`); return;
     }
     setError('');
     setLetter(generateLetter(fields));
     if (!paid) markLetterUsed();
-    // track count for dispute-kit tier only (complete-access is unlimited)
-    if (paid && !completeAccess) incrementPaidLetterCount();
+    // track count for all paid tiers (both dispute-kit and complete-access have daily caps)
+    if (paid) incrementPaidLetterCount();
   }
 
   function handleCopy() {
