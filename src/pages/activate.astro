@@ -133,12 +133,17 @@ import Layout from '../layouts/Layout.astro';
               try {
                 localStorage.setItem('mbd_paid', 'true');
                 localStorage.setItem('mbd_license_key', key);
+                if (data.tier) localStorage.setItem('mbd_tier', data.tier);
               } catch(e) {}
 
-              // Set cookie (30 days)
+              // Set cookies (30 days)
               var expires = new Date();
               expires.setDate(expires.getDate() + 30);
-              document.cookie = 'paid=true; expires=' + expires.toUTCString() + '; path=/; SameSite=Lax';
+              var maxAge = 30 * 24 * 60 * 60;
+              document.cookie = 'paid=true; max-age=' + maxAge + '; path=/; SameSite=Lax';
+              if (data.tier) {
+                document.cookie = 'tier=' + data.tier + '; max-age=' + maxAge + '; path=/; SameSite=Lax';
+              }
 
               // Show success, hide form
               formWrap.style.display = 'none';
