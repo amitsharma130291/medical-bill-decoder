@@ -12,9 +12,17 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    // Normalize: Gumroad keys are hex (0-9, A-F only).
+    // The dashboard font makes O and 0, I and 1 indistinguishable.
+    const normalizedKey = licenseKey
+      .toUpperCase()
+      .replace(/O/g, '0')   // letter O → digit zero
+      .replace(/I/g, '1')   // letter I → digit one
+      .replace(/\s/g, '');  // strip any stray whitespace
+
     const params = new URLSearchParams();
     params.append('product_id', 'fsupd');  // hardcoded, no env var
-    params.append('license_key', licenseKey);
+    params.append('license_key', normalizedKey);
     params.append('increment_uses_count', body.renew ? 'false' : 'true');
 
     const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
