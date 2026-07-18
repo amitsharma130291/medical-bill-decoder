@@ -31,7 +31,7 @@ const PAID_LETTER_LIMIT = 20;
 
 function isPaid(): boolean {
   if (typeof document === 'undefined') return false;
-  return document.cookie.includes('paid=true');
+  return document.cookie.split(';').some(c => c.trim() === 'paid=true');
 }
 function hasUsedFreeLetter(): boolean {
   if (typeof sessionStorage === 'undefined') return false;
@@ -110,6 +110,50 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
+const printStyles = `
+@media print {
+  /* Hide everything except the letter */
+  body > *:not(#print-root) { display: none !important; }
+  nav, header, footer, aside,
+  [data-no-print], .no-print,
+  [class*="nav"], [class*="header"], [class*="footer"],
+  [class*="sidebar"], [class*="cta"], [class*="banner"],
+  [class*="sticky"], [id*="nav"], [id*="header"], [id*="footer"],
+  button, form, input, select, textarea,
+  #print-hide { display: none !important; }
+
+  /* Show only the letter content */
+  #print-letter {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+    z-index: 99999 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  #print-letter pre {
+    font-family: Georgia, 'Times New Roman', serif !important;
+    font-size: 12pt !important;
+    line-height: 1.8 !important;
+    color: #000 !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 25mm 20mm 25mm 20mm;
+  }
+}
+`;
+
 export default function DisputeLetter() {
   const [fields, setFields] = useState({ patientName: '', providerName: '', billDate: '', disputeReason: '', state: '' });
   const [letter, setLetter] = useState('');
@@ -145,141 +189,182 @@ export default function DisputeLetter() {
   function handleCopy() {
     if (letter) navigator.clipboard.writeText(letter).catch(() => {});
   }
-  function handlePrint() {
-    const w = window.open('', '_blank');
-    if (w) {
-      w.document.write(`<pre style="font-family: Georgia, serif; white-space: pre-wrap; padding: 48px; font-size: 15px; line-height: 1.7;">${letter}</pre>`);
-      w.document.close(); w.print();
-    }
+
+  function handleDownloadPDF() {
+    window.print();
   }
 
   const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: INK, marginBottom: 6, fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.01em' };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: printStyles }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      {/* Tier notice */}
-      {!paid && (
-        <div style={{
-          background: alreadyUsed ? '#FFFBEB' : '#EFF9FA',
-          border: `1px solid ${alreadyUsed ? '#FCD34D' : BORDER}`,
-          borderRadius: '12px', padding: '14px 16px',
-          display: 'flex', alignItems: 'flex-start', gap: 10,
-        }}>
-          <svg style={{ width: 18, height: 18, color: alreadyUsed ? AMBER : TEAL, flexShrink: 0, marginTop: 2 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <p style={{ fontSize: 13, color: INK, margin: 0 }}>
-            {alreadyUsed
-              ? <>Free letter used. {PAYMENTS_LIVE
-                  ? <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($19)</a>
-                  : <a href="/#complete-kit" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Complete Dispute Kit — coming soon</a>
-                } for up to 20 letters per day.</>
-              : <><strong>Free tier:</strong> 1 dispute letter per session. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for up to 20 letters →</a></>
-            }
-          </p>
+        {/* Tier notice */}
+        {!paid && (
+          <div style={{
+            background: alreadyUsed ? '#FFFBEB' : '#EFF9FA',
+            border: `1px solid ${alreadyUsed ? '#FCD34D' : BORDER}`,
+            borderRadius: '12px', padding: '14px 16px',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+            <svg style={{ width: 18, height: 18, color: alreadyUsed ? AMBER : TEAL, flexShrink: 0, marginTop: 2 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p style={{ fontSize: 13, color: INK, margin: 0 }}>
+              {alreadyUsed
+                ? <>Free letter used. {PAYMENTS_LIVE
+                    ? <a href="/api/create-checkout" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Upgrade to Complete Dispute Kit ($29)</a>
+                    : <a href="/#complete-kit" style={{ color: AMBER, fontWeight: 600, textDecoration: 'underline' }}>Complete Dispute Kit — coming soon</a>
+                  } for up to 20 letters per day.</>
+                : <><strong>Free tier:</strong> 1 dispute letter per session. <a href="/#complete-kit" style={{ color: TEAL, fontWeight: 500, textDecoration: 'underline' }}>Upgrade for up to 20 letters →</a></>
+              }
+            </p>
+          </div>
+        )}
+
+        {/* Form grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div>
+            <label style={labelStyle}>Patient Name *</label>
+            <input type="text" name="patientName" value={fields.patientName} onChange={handleChange}
+              placeholder="Jane Smith" style={inputStyle} disabled={blocked}
+              onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
+          </div>
+          <div>
+            <label style={labelStyle}>Provider / Hospital Name *</label>
+            <input type="text" name="providerName" value={fields.providerName} onChange={handleChange}
+              placeholder="Acme Regional Hospital" style={inputStyle} disabled={blocked}
+              onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
+          </div>
+          <div>
+            <label style={labelStyle}>Bill Date *</label>
+            <input type="date" name="billDate" value={fields.billDate} onChange={handleChange}
+              style={inputStyle} disabled={blocked}
+              onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
+          </div>
+          <div>
+            <label style={labelStyle}>State *</label>
+            <select name="state" value={fields.state} onChange={handleChange}
+              style={{ ...inputStyle, background: blocked ? SURFACE : '#fff' }} disabled={blocked}
+              onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}>
+              <option value="">Select your state</option>
+              {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
         </div>
-      )}
 
-      {/* Form grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <div>
-          <label style={labelStyle}>Patient Name *</label>
-          <input type="text" name="patientName" value={fields.patientName} onChange={handleChange}
-            placeholder="Jane Smith" style={inputStyle} disabled={blocked}
+          <label style={labelStyle}>Dispute Reason *</label>
+          <textarea name="disputeReason" value={fields.disputeReason} onChange={handleChange}
+            placeholder="e.g., I was charged twice for the same blood test (CPT 80053). The itemized bill shows two identical charges on 01/15/2024 totaling $486. I only had one blood draw during my visit."
+            style={{ ...inputStyle, height: 120, resize: 'none', lineHeight: 1.6 }} disabled={blocked}
             onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
         </div>
-        <div>
-          <label style={labelStyle}>Provider / Hospital Name *</label>
-          <input type="text" name="providerName" value={fields.providerName} onChange={handleChange}
-            placeholder="Acme Regional Hospital" style={inputStyle} disabled={blocked}
-            onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
-        </div>
-        <div>
-          <label style={labelStyle}>Bill Date *</label>
-          <input type="date" name="billDate" value={fields.billDate} onChange={handleChange}
-            style={inputStyle} disabled={blocked}
-            onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
-        </div>
-        <div>
-          <label style={labelStyle}>State *</label>
-          <select name="state" value={fields.state} onChange={handleChange}
-            style={{ ...inputStyle, background: blocked ? SURFACE : '#fff' }} disabled={blocked}
-            onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}>
-            <option value="">Select your state</option>
-            {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-      </div>
 
-      <div>
-        <label style={labelStyle}>Dispute Reason *</label>
-        <textarea name="disputeReason" value={fields.disputeReason} onChange={handleChange}
-          placeholder="e.g., I was charged twice for the same blood test (CPT 80053). The itemized bill shows two identical charges on 01/15/2024 totaling $486. I only had one blood draw during my visit."
-          style={{ ...inputStyle, height: 120, resize: 'none', lineHeight: 1.6 }} disabled={blocked}
-          onFocus={e => (e.target.style.borderColor = TEAL)} onBlur={e => (e.target.style.borderColor = BORDER)}/>
-      </div>
+        {error && (
+          <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '14px 16px' }}>
+            <p style={{ fontSize: 13, color: ERROR_RED, margin: 0 }}>{error}</p>
+            {blocked && (
+              PAYMENTS_LIVE ? (
+                <a href="/api/create-checkout" style={{
+                  display: 'inline-block', marginTop: 10, background: AMBER, color: INK,
+                  fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, textDecoration: 'none',
+                }}>Get Complete Dispute Kit — $29</a>
+              ) : (
+                <div style={{ marginTop: 10 }}>
+                  <span style={{
+                    display: 'inline-block', background: '#D1D5DB', color: '#6B7280',
+                    fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, cursor: 'not-allowed',
+                  }}>Coming Soon — $29</span>
+                  <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6, marginBottom: 0 }}>
+                    <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline' }}>Join the waitlist</a> to be notified when payments launch.
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        )}
 
-      {error && (
-        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '14px 16px' }}>
-          <p style={{ fontSize: 13, color: ERROR_RED, margin: 0 }}>{error}</p>
-          {blocked && (
-            PAYMENTS_LIVE ? (
-              <a href="/api/create-checkout" style={{
-                display: 'inline-block', marginTop: 10, background: AMBER, color: INK,
-                fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, textDecoration: 'none',
-              }}>Get Complete Dispute Kit — $19</a>
-            ) : (
-              <div style={{ marginTop: 10 }}>
-                <span style={{
-                  display: 'inline-block', background: '#D1D5DB', color: '#6B7280',
-                  fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, cursor: 'not-allowed',
-                }}>Coming Soon — $19</span>
-                <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6, marginBottom: 0 }}>
-                  <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline' }}>Join the waitlist</a> to be notified when payments launch.
-                </p>
+        <button onClick={handleGenerate} disabled={blocked} style={{
+          width: '100%', background: blocked ? MUTED : BLUE, color: '#fff',
+          fontWeight: 700, padding: '15px', borderRadius: '12px',
+          border: 'none', cursor: blocked ? 'not-allowed' : 'pointer',
+          fontSize: 16, fontFamily: 'DM Sans, sans-serif',
+        }}
+          onMouseOver={e => { if (!blocked) e.currentTarget.style.background = '#243D66'; }}
+          onMouseOut={e => { if (!blocked) e.currentTarget.style.background = BLUE; }}>
+          {blocked ? 'Free Letter Used — Upgrade to Continue' : 'Generate My Dispute Letter'}
+        </button>
+
+        {letter && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div id="print-hide" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <h2 style={{ fontWeight: 700, color: INK, margin: 0, fontSize: 18, fontFamily: 'DM Sans, sans-serif' }}>Your Dispute Letter</h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={handleCopy} style={{
+                  background: SURFACE, color: INK, fontWeight: 500, padding: '8px 16px',
+                  borderRadius: '8px', border: `1px solid ${BORDER}`, cursor: 'pointer',
+                  fontSize: 13, fontFamily: 'DM Sans, sans-serif',
+                }}>Copy</button>
+
+                {/* PDF Download: paid users get real button; unpaid get locked state */}
+                {paid ? (
+                  <button onClick={handleDownloadPDF} style={{
+                    background: TEAL, color: '#fff', fontWeight: 600, padding: '8px 16px',
+                    borderRadius: '8px', border: 'none', cursor: 'pointer',
+                    fontSize: 13, fontFamily: 'DM Sans, sans-serif',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                  }}>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download as PDF
+                  </button>
+                ) : (
+                  PAYMENTS_LIVE ? (
+                    <a href="/api/create-checkout" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      background: AMBER, color: INK, fontWeight: 700,
+                      padding: '8px 16px', borderRadius: '8px',
+                      fontSize: 13, fontFamily: 'DM Sans, sans-serif',
+                      textDecoration: 'none', cursor: 'pointer',
+                    }}>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                      </svg>
+                      Unlock PDF — $29
+                    </a>
+                  ) : (
+                    <span title="PDF download included with Complete Dispute Kit" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      background: '#D1D5DB', color: '#6B7280', fontWeight: 600,
+                      padding: '8px 16px', borderRadius: '8px',
+                      fontSize: 13, fontFamily: 'DM Sans, sans-serif',
+                      cursor: 'not-allowed',
+                    }}>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                      </svg>
+                      PDF — Complete Kit ($29)
+                    </span>
+                  )
+                )}
               </div>
-            )
-          )}
-        </div>
-      )}
-
-      <button onClick={handleGenerate} disabled={blocked} style={{
-        width: '100%', background: blocked ? MUTED : BLUE, color: '#fff',
-        fontWeight: 700, padding: '15px', borderRadius: '12px',
-        border: 'none', cursor: blocked ? 'not-allowed' : 'pointer',
-        fontSize: 16, fontFamily: 'DM Sans, sans-serif',
-      }}
-        onMouseOver={e => { if (!blocked) e.currentTarget.style.background = '#243D66'; }}
-        onMouseOut={e => { if (!blocked) e.currentTarget.style.background = BLUE; }}>
-        {blocked ? 'Free Letter Used — Upgrade to Continue' : 'Generate My Dispute Letter'}
-      </button>
-
-      {letter && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-            <h2 style={{ fontWeight: 700, color: INK, margin: 0, fontSize: 18, fontFamily: 'DM Sans, sans-serif' }}>Your Dispute Letter</h2>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={handleCopy} style={{
-                background: SURFACE, color: INK, fontWeight: 500, padding: '8px 16px',
-                borderRadius: '8px', border: `1px solid ${BORDER}`, cursor: 'pointer',
-                fontSize: 13, fontFamily: 'DM Sans, sans-serif',
-              }}>Copy</button>
-              <button onClick={handlePrint} style={{
-                background: BLUE, color: '#fff', fontWeight: 600, padding: '8px 16px',
-                borderRadius: '8px', border: 'none', cursor: 'pointer',
-                fontSize: 13, fontFamily: 'DM Sans, sans-serif',
-              }}>Print / Save</button>
             </div>
+
+            {/* Letter content — shown during print, rest is hidden */}
+            <div id="print-letter" style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: '14px', padding: '28px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)' }}>
+              <pre style={{ fontSize: 14, color: INK, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif', lineHeight: 1.8, margin: 0 }}>{letter}</pre>
+            </div>
+
+            <p id="print-hide" style={{ fontSize: 12, color: MUTED, textAlign: 'center', margin: 0 }}>
+              This letter is a template. Review and customize as needed. Not legal advice.
+            </p>
           </div>
-          <div style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: '14px', padding: '28px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)' }}>
-            <pre style={{ fontSize: 14, color: INK, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif', lineHeight: 1.8, margin: 0 }}>{letter}</pre>
-          </div>
-          <p style={{ fontSize: 12, color: MUTED, textAlign: 'center', margin: 0 }}>
-            This letter is a template. Review and customize as needed. Not legal advice.
-          </p>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
