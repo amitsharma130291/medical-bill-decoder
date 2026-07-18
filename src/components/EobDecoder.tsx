@@ -206,14 +206,25 @@ export default function EobDecoder() {
                 <li>• Which sections of your EOB to challenge and why</li>
                 <li>• A ready-to-send dispute letter with PDF download</li>
               </ul>
-              <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
-                style={{
-                  display: 'inline-block', background: TEAL, color: '#fff',
-                  padding: '8px 16px', borderRadius: '8px', fontSize: 13,
-                  fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif',
-                }}>
-                Unlock for $29 →
-              </a>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <a href="https://amitverse58.gumroad.com/l/vluqnh" target="_blank" rel="noopener"
+                  style={{
+                    display: 'inline-block', background: TEAL, color: '#fff',
+                    padding: '8px 16px', borderRadius: '8px', fontSize: 13,
+                    fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif',
+                  }}>
+                  7-Day Pass — $9 →
+                </a>
+                <a href="https://amitverse58.gumroad.com/l/fsupd" target="_blank" rel="noopener"
+                  style={{
+                    display: 'inline-block', background: '#fff', color: TEAL,
+                    border: `1px solid ${TEAL}`,
+                    padding: '8px 16px', borderRadius: '8px', fontSize: 13,
+                    fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif',
+                  }}>
+                  Dispute Kit — $29 →
+                </a>
+              </div>
             </div>
           )}
         </div>

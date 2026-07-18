@@ -23,7 +23,7 @@ import Layout from '../layouts/Layout.astro';
   <section class="py-16 px-4" style="background: #F7F8FA;">
     <div class="max-w-5xl mx-auto">
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <!-- Free Tier -->
         <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column;">
@@ -50,6 +50,45 @@ import Layout from '../layouts/Layout.astro';
           </ul>
           <a href="/eob-decoder" style="display:block; text-align:center; padding:13px 20px; border:2px solid #0F7B8C; border-radius:10px; color:#0F7B8C; font-weight:700; font-size:15px; text-decoration:none; transition:background 0.15s;" onmouseover="this.style.background='#F0FAFB'" onmouseout="this.style.background='transparent'">
             Start Free →
+          </a>
+        </div>
+
+
+        <!-- 7-Day Session Pass -->
+        <div style="background:#fff; border:2px solid #0F7B8C; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column; box-shadow: 0 8px 32px rgba(15,123,140,0.10);">
+          <!-- Live badge -->
+          <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#059669; color:#fff; font-size:12px; font-weight:700; padding:4px 14px; border-radius:999px; white-space:nowrap; letter-spacing:0.04em;">
+            NOW LIVE
+          </div>
+          <div style="font-size:13px; font-weight:600; color:#0F7B8C; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:12px;">7-Day Pass</div>
+          <div style="font-size:42px; font-weight:800; color:#1A2332; line-height:1; margin-bottom:6px;">$9</div>
+          <div style="font-size:14px; color:#64748B; margin-bottom:24px;">One-time payment</div>
+          <ul style="list-style:none; padding:0; margin:0 0 32px; flex:1;">
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>Full EOB Decoder — 20 decodes for 7 days</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>Full dispute strategy included</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>Download as PDF</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
+              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
+              <span>Perfect for a single dispute</span>
+            </li>
+          </ul>
+          <a href="https://amitverse58.gumroad.com/l/vluqnh" target="_blank" rel="noopener"
+            style="display:block; text-align:center; padding:13px 20px; background:#0F7B8C; border-radius:10px; color:#fff; font-weight:700; font-size:15px; text-decoration:none;"
+            onmouseover="this.style.background='#0a6475'" onmouseout="this.style.background='#0F7B8C'"
+            onclick="if(typeof gtag!=='undefined'){gtag('event','gumroad_buy_click',{event_category:'conversion',event_label:'session_pass_pricing',value:9})}">
+            Buy Now — $9 →
+          </a>
+          <a href="/activate" style="display:block; text-align:center; padding:10px 20px; color:#64748B; font-size:13px; font-weight:600; text-decoration:none; margin-top:10px;">
+            Already purchased? Activate key →
           </a>
         </div>
 
