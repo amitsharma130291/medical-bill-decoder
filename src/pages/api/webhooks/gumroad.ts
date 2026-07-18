@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 
+const ALLOWED_PERMALINKS = ['vluqnh', 'fsupd', 'rslhtn'];
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const text = await request.text();
@@ -16,7 +18,15 @@ export const POST: APIRoute = async ({ request }) => {
       body['license_key'] != null;
 
     if (isSale) {
-      console.log('[gumroad-webhook] sale event received');
+      // Gumroad sends product_permalink in the webhook body
+      const productPermalink = body['product_permalink'] || body['permalink'] || '';
+
+      if (!ALLOWED_PERMALINKS.includes(productPermalink)) {
+        console.log('[gumroad-webhook] ignoring unrelated product:', productPermalink);
+        return new Response('OK', { status: 200 });
+      }
+
+      console.log('[gumroad-webhook] sale event received for product:', productPermalink);
 
       const email = body['email'];
       const licenseKey = body['license_key'];
@@ -28,11 +38,18 @@ export const POST: APIRoute = async ({ request }) => {
         const activateUrl = `https://eobdecoder.com/activate?key=${licenseKey}`;
         const greeting = fullName ? `Hi ${fullName.split(' ')[0]},` : 'Hi there,';
 
+        const subjects: Record<string, string> = {
+          'vluqnh': 'Activate your 7-Day Pass — EOB Decoder',
+          'fsupd': 'Activate your Dispute Kit — EOB Decoder',
+          'rslhtn': 'Activate your Complete Access — EOB Decoder',
+        };
+        const subject = subjects[productPermalink] || 'Activate your EOB Decoder access';
+
         try {
           await resend.emails.send({
             from: 'EOB Decoder <noreply@eobdecoder.com>',
             to: email,
-            subject: 'Activate your EOB Decoder access — 1 click',
+            subject,
             html: `<!DOCTYPE html>
 <html>
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;color:#111;">
