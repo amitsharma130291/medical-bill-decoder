@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { kv } from '@vercel/kv';
 
 const SESSION_PASS_PRODUCT_ID = 'kQcItDBcIQlop-ccKgEESg==';
 
@@ -42,7 +43,32 @@ export const POST: APIRoute = async ({ request }) => {
       });
       const data = await res.json();
       if (data.success) {
-        return new Response(JSON.stringify({ success: true, tier: product.tier }), { status: 200 });
+        const responseHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+
+        // For session-pass: set license_key cookie + write to KV for server-side expiry validation
+        if (product.tier === 'session-pass') {
+          // Store license key in HttpOnly cookie so server can look it up later
+          responseHeaders['Set-Cookie'] = `license_key=${normalizedKey}; path=/; max-age=604800; SameSite=Strict; HttpOnly`;
+
+          // Write to KV with 7-day TTL for server-side expiry
+          try {
+            const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+            await kv.set(
+              `session:${normalizedKey}`,
+              { tier: 'session-pass', expiresAt, activatedAt: Date.now() },
+              { px: 7 * 24 * 60 * 60 * 1000 }
+            );
+          } catch (e) {
+            console.warn('[session-pass] KV write failed, cookie-based expiry still active');
+          }
+        }
+
+        return new Response(JSON.stringify({ success: true, tier: product.tier }), {
+          status: 200,
+          headers: responseHeaders,
+        });
       }
     }
 

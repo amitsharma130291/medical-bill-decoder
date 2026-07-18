@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import OpenAI from 'openai';
+import { kv } from '@vercel/kv';
 
 const DAILY_LIMIT = 3;
 const PAID_DAILY_LIMIT = 20;
@@ -46,7 +47,34 @@ export const POST: APIRoute = async ({ request }) => {
     const tier = cookies['tier'] || (isPaid ? 'dispute-kit' : 'free');
     const isCompleteAccess = tier === 'complete-access';
 
-    if (!isPaid && count >= DAILY_LIMIT) {
+    // Server-side session-pass expiry validation via Vercel KV
+    let isSessionPass = tier === 'session-pass';
+    if (isSessionPass) {
+      const licenseKey = cookies['license_key'];
+      if (!licenseKey) {
+        // No key stored — treat as free (cookie tampering: kept tier but dropped license_key)
+        isSessionPass = false;
+      } else {
+        try {
+          const sessionData = await kv.get<{ expiresAt: number }>(`session:${licenseKey}`);
+          if (!sessionData || sessionData.expiresAt < Date.now()) {
+            isSessionPass = false; // expired or not in KV
+          }
+        } catch (e) {
+          console.warn('[session-pass] KV read failed, falling back to cookie check');
+          // Fallback: check session_expires cookie (browser-set expiry)
+          const sessionExpires = cookies['session_expires'];
+          if (!sessionExpires || parseInt(sessionExpires, 10) < Date.now()) {
+            isSessionPass = false;
+          }
+        }
+      }
+    }
+
+    // If session-pass failed KV validation, downgrade to free
+    const effectivelyPaid = isPaid && (tier !== 'session-pass' || isSessionPass);
+
+    if (!effectivelyPaid && count >= DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'Daily limit reached. Upgrade to the 7-Day Pass ($9) or Dispute Kit ($29) for up to 20 decodes per day.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
@@ -56,13 +84,13 @@ export const POST: APIRoute = async ({ request }) => {
     const paidKey = getPaidTodayKey();
     const paidCount = parseInt(cookies[paidKey] || '0', 10);
     // complete-access is capped at COMPLETE_ACCESS_DAILY_LIMIT; dispute-kit is capped at PAID_DAILY_LIMIT
-    if (isPaid && isCompleteAccess && paidCount >= COMPLETE_ACCESS_DAILY_LIMIT) {
+    if (effectivelyPaid && isCompleteAccess && paidCount >= COMPLETE_ACCESS_DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'You have reached your 50 decode limit for today. Your limit resets at midnight.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    if (isPaid && !isCompleteAccess && paidCount >= PAID_DAILY_LIMIT) {
+    if (effectivelyPaid && !isCompleteAccess && paidCount >= PAID_DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
@@ -73,7 +101,7 @@ export const POST: APIRoute = async ({ request }) => {
     // all tiers use gpt-4o-mini for consistent unit economics
     const model = 'gpt-4o-mini';
 
-    const systemPrompt = isPaid
+    const systemPrompt = effectivelyPaid
       ? `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
 
 Provide:
@@ -113,7 +141,7 @@ Do not include any dispute advice, likelihood of success, next steps, or recomme
     tomorrow.setHours(0, 0, 0, 0);
 
     const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (!isPaid) {
+    if (!effectivelyPaid) {
       responseHeaders['Set-Cookie'] = `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
     } else {
       // track usage for both complete-access (50/day) and dispute-kit (20/day)
