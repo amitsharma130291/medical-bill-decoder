@@ -66,6 +66,8 @@ import Layout from '../layouts/Layout.astro';
 
           <div id="activate-error" style="display:none; background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:14px; color:#B91C1C;"></div>
 
+          <p id="auto-activate-status" style="display:none; font-size:14px; color:#0F7B8C; font-weight:600; margin-bottom:12px;" aria-live="polite"></p>
+
           <button id="activate-btn"
             style="width:100%; padding:13px 20px; background:#E8A020; color:#1A2332; font-weight:700; font-size:16px; border:none; border-radius:10px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background 0.15s;"
             onmouseover="this.style.background='#D4911C'" onmouseout="this.style.background='#E8A020'">
@@ -184,6 +186,37 @@ import Layout from '../layouts/Layout.astro';
       input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') btn.click();
       });
+
+      // Auto-activate when ?key= is present in the URL (e.g. from a Gumroad post-purchase redirect)
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var keyParam = params.get('key');
+        if (!keyParam) return;
+
+        // Normalize — same rules as oninput handler
+        var normalized = keyParam.toUpperCase()
+          .replace(/O/g, '0')
+          .replace(/I/g, '1')
+          .replace(/\s/g, '');
+
+        // Pre-fill input
+        if (input) {
+          input.value = normalized;
+          input.dispatchEvent(new Event('input'));
+        }
+
+        // Show status message
+        var status = document.getElementById('auto-activate-status');
+        if (status) {
+          status.textContent = 'Activating your access...';
+          status.style.display = 'block';
+        }
+
+        // Auto-submit after short delay so user can see what's happening
+        setTimeout(function () {
+          if (btn) btn.click();
+        }, 600);
+      })();
     })();
   </script>
 
