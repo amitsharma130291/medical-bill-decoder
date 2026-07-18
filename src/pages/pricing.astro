@@ -55,39 +55,47 @@ import Layout from '../layouts/Layout.astro';
 
 
         <!-- 7-Day Session Pass -->
-        <div style="background:#fff; border:2px solid #0F7B8C; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column; box-shadow: 0 8px 32px rgba(15,123,140,0.10);">
-          <!-- Live badge -->
-          <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#059669; color:#fff; font-size:12px; font-weight:700; padding:4px 14px; border-radius:999px; white-space:nowrap; letter-spacing:0.04em;">
-            NOW LIVE
+        <div style="background:#fff; border:2.5px solid #059669; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column; box-shadow: 0 8px 36px rgba(5,150,105,0.14);">
+          <!-- MOST POPULAR ribbon -->
+          <div style="position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:#059669; color:#fff; font-size:12px; font-weight:700; padding:4px 16px; border-radius:999px; white-space:nowrap; letter-spacing:0.06em;">
+            MOST POPULAR
           </div>
-          <div style="font-size:13px; font-weight:600; color:#0F7B8C; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:12px;">7-Day Pass</div>
-          <div style="font-size:42px; font-weight:800; color:#1A2332; line-height:1; margin-bottom:6px;">$9</div>
+          <div style="font-size:13px; font-weight:600; color:#059669; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:12px;">7-Day Pass</div>
+          <!-- Urgency badge -->
+          <div style="display:inline-block; background:#ECFDF5; color:#065F46; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px; width:fit-content;">⚡ Most people resolve their bill within 7 days</div>
+          <div style="font-size:42px; font-weight:800; color:#1A2332; line-height:1; margin-bottom:4px;">$9</div>
+          <div style="font-size:13px; color:#64748B; font-style:italic; margin-bottom:4px;">The average disputed bill saves $400+</div>
           <div style="font-size:14px; color:#64748B; margin-bottom:24px;">One-time payment</div>
-          <ul style="list-style:none; padding:0; margin:0 0 32px; flex:1;">
+          <ul style="list-style:none; padding:0; margin:0 0 28px; flex:1;">
             <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
-              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
-              <span>Full EOB Decoder — 20 decodes for 7 days</span>
+              <span style="color:#059669; font-weight:700; margin-top:1px;">✓</span>
+              <span>Decode every EOB from this billing event — unlimited this week</span>
             </li>
             <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
-              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
-              <span>Full dispute strategy included</span>
+              <span style="color:#059669; font-weight:700; margin-top:1px;">✓</span>
+              <span>Full dispute strategy for each denial code found</span>
             </li>
             <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
-              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
-              <span>Download as PDF</span>
+              <span style="color:#059669; font-weight:700; margin-top:1px;">✓</span>
+              <span>20 dispute letters per day</span>
             </li>
             <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#334155;">
-              <span style="color:#0F7B8C; font-weight:700; margin-top:1px;">✓</span>
-              <span>Perfect for a single dispute</span>
+              <span style="color:#059669; font-weight:700; margin-top:1px;">✓</span>
+              <span>Expires in 7 days — built for one billing event</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#94A3B8;">
+              <span style="color:#94A3B8; font-weight:700; margin-top:1px;">✗</span>
+              <span>No PDF download (available in Dispute Kit)</span>
             </li>
           </ul>
           <a href="https://amitverse58.gumroad.com/l/vluqnh" target="_blank" rel="noopener"
-            style="display:block; text-align:center; padding:13px 20px; background:#0F7B8C; border-radius:10px; color:#fff; font-weight:700; font-size:15px; text-decoration:none;"
-            onmouseover="this.style.background='#0a6475'" onmouseout="this.style.background='#0F7B8C'"
+            style="display:block; text-align:center; padding:13px 20px; background:#059669; border-radius:10px; color:#fff; font-weight:700; font-size:15px; text-decoration:none;"
+            onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'"
             onclick="if(typeof gtag!=='undefined'){gtag('event','gumroad_buy_click',{event_category:'conversion',event_label:'session_pass_pricing',value:9})}">
             Buy Now — $9 →
           </a>
-          <a href="/activate" style="display:block; text-align:center; padding:10px 20px; color:#64748B; font-size:13px; font-weight:600; text-decoration:none; margin-top:10px;">
+          <div style="text-align:center; font-size:12px; color:#64748B; margin-top:8px;">Access starts immediately. Works for any US medical bill.</div>
+          <a href="/activate" style="display:block; text-align:center; padding:10px 20px; color:#64748B; font-size:13px; font-weight:600; text-decoration:none; margin-top:6px;">
             Already purchased? Activate key →
           </a>
         </div>
