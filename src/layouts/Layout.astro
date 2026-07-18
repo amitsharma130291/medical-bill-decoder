@@ -228,7 +228,11 @@ const web3formsKey = import.meta.env.WEB3FORMS_ACCESS_KEY ?? '';
         });
         const data = await res.json();
         if (data.success) {
-          document.cookie = 'paid=true; max-age=' + (365 * 24 * 60 * 60) + '; path=/; SameSite=Lax';
+          var maxAge = 365 * 24 * 60 * 60;
+          document.cookie = 'paid=true; max-age=' + maxAge + '; path=/; SameSite=Lax';
+          if (data.tier) {
+            document.cookie = 'tier=' + data.tier + '; max-age=' + maxAge + '; path=/; SameSite=Lax';
+          }
           window.dispatchEvent(new CustomEvent('accessRestored'));
         } else {
           localStorage.removeItem('gumroad_license');
