@@ -172,6 +172,14 @@ import Layout from '../layouts/Layout.astro';
           });
       });
 
+      // Normalize input in real time: O→0, I→1, uppercase
+      // Gumroad keys are hex (0-9, A-F). The dashboard font makes O/0 and I/1 look identical.
+      input.addEventListener('input', function() {
+        var pos = this.selectionStart;
+        this.value = this.value.toUpperCase().replace(/O/g, '0').replace(/I/g, '1');
+        this.setSelectionRange(pos, pos);
+      });
+
       // Allow Enter key
       input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') btn.click();
