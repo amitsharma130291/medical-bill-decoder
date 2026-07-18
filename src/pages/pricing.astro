@@ -104,10 +104,6 @@ import Layout from '../layouts/Layout.astro';
 
         <!-- Complete Access -->
         <div style="background:#fff; border:1.5px solid #E2E8F0; border-radius:16px; padding:32px 28px; position:relative; display:flex; flex-direction:column;">
-          <!-- Coming Soon badge -->
-          <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#E2E8F0; color:#64748B; font-size:12px; font-weight:700; padding:4px 14px; border-radius:999px; white-space:nowrap; letter-spacing:0.04em;">
-            COMING SOON
-          </div>
           <div style="font-size:13px; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:12px;">Complete Access</div>
           <div style="font-size:42px; font-weight:800; color:#1A2332; line-height:1; margin-bottom:6px;">$49</div>
           <div style="font-size:14px; color:#64748B; margin-bottom:6px;">One-time payment</div>
@@ -138,12 +134,14 @@ import Layout from '../layouts/Layout.astro';
               <span>Founding member pricing locked forever</span>
             </li>
           </ul>
-          <button onclick="showComingSoon(event)" style="display:block; width:100%; text-align:center; padding:13px 20px; background:#2D4A7A; border:none; border-radius:10px; color:#fff; font-weight:700; font-size:15px; cursor:pointer; font-family:'DM Sans',sans-serif;" onmouseover="this.style.background='#243D66'" onmouseout="this.style.background='#2D4A7A'">
-            Join Waitlist →
-          </button>
-          <a href="mailto:amitsharma130291@gmail.com?subject=Notify me: $49 tier"
-            style="display:block; text-align:center; padding:10px 20px; color:#64748B; font-size:13px; font-weight:500; text-decoration:none; margin-top:8px;">
-            Get notified when $49 tier launches →
+          <a href="https://amitverse58.gumroad.com/l/rslhtn" target="_blank" rel="noopener"
+            style="display:block; text-align:center; padding:13px 20px; background:#0F7B8C; border-radius:10px; color:#fff; font-weight:700; font-size:15px; text-decoration:none;"
+            onmouseover="this.style.background='#0a6475'" onmouseout="this.style.background='#0F7B8C'"
+            onclick="if(typeof gtag!=='undefined'){gtag('event','gumroad_buy_click',{event_category:'conversion',event_label:'complete_access_pricing',value:49})}">
+            Buy Now — $49 →
+          </a>
+          <a href="/activate" style="display:block; text-align:center; padding:10px 20px; color:#64748B; font-size:13px; font-weight:600; text-decoration:none; margin-top:10px;">
+            Already purchased? Activate key →
           </a>
         </div>
 

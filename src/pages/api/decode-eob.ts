@@ -42,6 +42,8 @@ export const POST: APIRoute = async ({ request }) => {
     const todayKey = getTodayKey();
     const count = parseInt(cookies[todayKey] || '0', 10);
     const isPaid = cookies['paid'] === 'true' || paid === true;
+    const tier = cookies['tier'] || (isPaid ? 'dispute-kit' : 'free');
+    const isCompleteAccess = tier === 'complete-access';
 
     if (!isPaid && count >= DAILY_LIMIT) {
       return new Response(
@@ -52,7 +54,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     const paidKey = getPaidTodayKey();
     const paidCount = parseInt(cookies[paidKey] || '0', 10);
-    if (isPaid && paidCount >= PAID_DAILY_LIMIT) {
+    // complete-access tier has Infinity (no daily cap); dispute-kit is capped at PAID_DAILY_LIMIT
+    if (isPaid && !isCompleteAccess && paidCount >= PAID_DAILY_LIMIT) {
       return new Response(
         JSON.stringify({ error: 'You have reached your 20 decode limit for today. Your limit resets at midnight. Thank you for using the Complete Dispute Kit!' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
@@ -60,6 +63,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const openai = new OpenAI({ apiKey: import.meta.env.OPENAI_API_KEY });
+    // complete-access gets gpt-4o for higher quality; everyone else gets gpt-4o-mini
+    const model = isCompleteAccess ? 'gpt-4o' : 'gpt-4o-mini';
 
     const systemPrompt = isPaid
       ? `You are a medical billing expert. Decode the user's Explanation of Benefits (EOB) into plain English. Be concise. Explain in plain English using bullet points. Maximum 400 words.
@@ -82,7 +87,7 @@ Provide:
 Keep your response helpful but brief. Mention that the Complete Dispute Kit (upgrade) provides full dispute guidance and step-by-step instructions.`;
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Please decode this EOB:\n\n${eobText.slice(0, 8000)}` },
@@ -98,16 +103,17 @@ Keep your response helpful but brief. Mention that the Complete Dispute Kit (upg
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    const setCookies = isPaid
-      ? `${paidKey}=${paidCount + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`
-      : `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
+    // complete-access has no cap so no need to track usage count
+    const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (!isPaid) {
+      responseHeaders['Set-Cookie'] = `${todayKey}=${count + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
+    } else if (!isCompleteAccess) {
+      responseHeaders['Set-Cookie'] = `${paidKey}=${paidCount + 1}; expires=${tomorrow.toUTCString()}; path=/; SameSite=Lax`;
+    }
 
     return new Response(JSON.stringify({ result }), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Set-Cookie': setCookies,
-      },
+      headers: responseHeaders,
     });
   } catch (err: any) {
     console.error('decode-eob error:', err);
