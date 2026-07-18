@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import OpenAI from 'openai';
-import { kv } from '@vercel/kv';
+import { getRedis } from '../../lib/redis';
 
 const DAILY_LIMIT = 3;
 const PAID_DAILY_LIMIT = 20;
@@ -56,17 +56,24 @@ export const POST: APIRoute = async ({ request }) => {
         isSessionPass = false;
       } else {
         try {
-          const sessionData = await kv.get<{ expiresAt: number }>(`session:${licenseKey}`);
-          if (!sessionData || sessionData.expiresAt < Date.now()) {
-            isSessionPass = false; // expired or not in KV
+          const redis = getRedis();
+          if (redis) {
+            const raw = await redis.get(`session:${licenseKey}`);
+            if (!raw) {
+              isSessionPass = false;
+            } else {
+              const data = JSON.parse(raw) as { expiresAt: number };
+              if (data.expiresAt < Date.now()) isSessionPass = false;
+            }
+          } else {
+            // No Redis — fall back to cookie
+            const exp = cookies['session_expires'];
+            if (!exp || parseInt(exp, 10) < Date.now()) isSessionPass = false;
           }
         } catch (e) {
-          console.warn('[session-pass] KV read failed, falling back to cookie check');
-          // Fallback: check session_expires cookie (browser-set expiry)
-          const sessionExpires = cookies['session_expires'];
-          if (!sessionExpires || parseInt(sessionExpires, 10) < Date.now()) {
-            isSessionPass = false;
-          }
+          console.warn('[session-pass] Redis read failed, falling back to cookie');
+          const exp = cookies['session_expires'];
+          if (!exp || parseInt(exp, 10) < Date.now()) isSessionPass = false;
         }
       }
     }

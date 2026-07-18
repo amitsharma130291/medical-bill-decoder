@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { kv } from '@vercel/kv';
+import { getRedis } from '../../lib/redis';
 
 const SESSION_PASS_PRODUCT_ID = 'kQcItDBcIQlop-ccKgEESg==';
 
@@ -52,16 +52,20 @@ export const POST: APIRoute = async ({ request }) => {
           // Store license key in HttpOnly cookie so server can look it up later
           responseHeaders['Set-Cookie'] = `license_key=${normalizedKey}; path=/; max-age=604800; SameSite=Strict; HttpOnly`;
 
-          // Write to KV with 7-day TTL for server-side expiry
+          // Write to Redis with 7-day TTL for server-side expiry
           try {
-            const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
-            await kv.set(
-              `session:${normalizedKey}`,
-              { tier: 'session-pass', expiresAt, activatedAt: Date.now() },
-              { px: 7 * 24 * 60 * 60 * 1000 }
-            );
+            const redis = getRedis();
+            if (redis) {
+              const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+              await redis.set(
+                `session:${normalizedKey}`,
+                JSON.stringify({ tier: 'session-pass', expiresAt, activatedAt: Date.now() }),
+                'PX',
+                7 * 24 * 60 * 60 * 1000
+              );
+            }
           } catch (e) {
-            console.warn('[session-pass] KV write failed, cookie-based expiry still active');
+            console.warn('[session-pass] Redis write failed, cookie expiry still active');
           }
         }
 
