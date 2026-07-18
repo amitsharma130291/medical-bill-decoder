@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // ---------------------------------------------------------------------------
-// PAYMENTS_LIVE: set to true to re-enable the $19 checkout button.
+// PAYMENTS_LIVE: set to true to re-enable the $29 checkout button.
 // false = show Coming Soon UI instead. One-line change to go live.
 // ---------------------------------------------------------------------------
 const PAYMENTS_LIVE = false;

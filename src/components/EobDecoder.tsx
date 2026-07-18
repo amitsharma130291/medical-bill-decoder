@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { marked } from 'marked';
 
 // ---------------------------------------------------------------------------
-// PAYMENTS_LIVE: set to true to re-enable the $19 checkout button.
+// PAYMENTS_LIVE: set to true to re-enable the $29 checkout button.
 // false = show Coming Soon UI instead. One-line change to go live.
 // ---------------------------------------------------------------------------
 const PAYMENTS_LIVE = false;
@@ -144,7 +144,7 @@ export default function EobDecoder() {
                   fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
                   fontSize: 14, textDecoration: 'none',
                 }}>
-                  Get Complete Dispute Kit — $19
+                  Get Complete Dispute Kit — $29
                 </a>
               ) : (
                 <span style={{
@@ -152,7 +152,7 @@ export default function EobDecoder() {
                   fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
                   fontSize: 14, cursor: 'not-allowed',
                 }}>
-                  Coming Soon — $19
+                  Coming Soon — $29
                 </span>
               )}
             </div>
@@ -209,7 +209,7 @@ export default function EobDecoder() {
                   fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
                   fontSize: 14, textDecoration: 'none',
                 }}>
-                  Upgrade for $19 →
+                  Upgrade for $29 →
                 </a>
               ) : (
                 <div>
@@ -218,7 +218,7 @@ export default function EobDecoder() {
                     fontWeight: 700, padding: '10px 20px', borderRadius: '10px',
                     fontSize: 14, cursor: 'not-allowed',
                   }}>
-                    Coming Soon — $19
+                    Coming Soon — $29
                   </span>
                   <p style={{ fontSize: 12, color: MUTED, marginTop: 8, marginBottom: 0 }}>
                     Payments coming soon —{' '}
