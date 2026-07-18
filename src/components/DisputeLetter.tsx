@@ -279,7 +279,7 @@ export default function DisputeLetter() {
                     fontWeight: 700, padding: '9px 18px', borderRadius: '8px', fontSize: 13, cursor: 'not-allowed',
                   }}>Coming Soon — $29</span>
                   <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6, marginBottom: 0 }}>
-                    <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline' }}>Join the waitlist</a> to be notified when payments launch.
+                    <a href="/pricing" style={{ color: TEAL, textDecoration: 'underline' }}>View pricing</a> — now live!
                   </p>
                 </div>
               )

@@ -221,9 +221,7 @@ export default function EobDecoder() {
                     Coming Soon — $29
                   </span>
                   <p style={{ fontSize: 12, color: MUTED, marginTop: 8, marginBottom: 0 }}>
-                    Payments coming soon —{' '}
-                    <a href="/#complete-kit" style={{ color: TEAL, textDecoration: 'underline' }}>join the waitlist</a>
-                    {' '}to be notified.
+                    <a href="/pricing" style={{ color: TEAL, textDecoration: 'underline' }}>View pricing</a> — now live!
                   </p>
                 </div>
               )}
