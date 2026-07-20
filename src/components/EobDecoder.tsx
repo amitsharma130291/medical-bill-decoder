@@ -1,6 +1,32 @@
 import { useState } from 'react';
 import { marked } from 'marked';
 
+const EXAMPLE_EOB = `EXPLANATION OF BENEFITS
+Member: John Smith | Member ID: UHC123456789
+Date of Service: 06/10/2026
+Provider: Metro General Hospital | Claim #: CLM-2026-0610
+
+CLAIM SUMMARY
+Total Billed:           $3,240.00
+Network Discount:         $890.00
+Plan Paid:              $1,680.00
+Applied to Deductible:    $500.00
+Your Responsibility:      $170.00
+
+SERVICE DETAIL
+Service               CPT Code   Billed     Allowed    Plan Paid  You Owe
+Emergency Room Visit   99285     $1,200.00   $850.00    $680.00   $170.00
+IV Infusion            96365       $380.00   $295.00    $236.00     $0.00
+Blood Panel            80053       $420.00   $335.00    $268.00     $0.00
+Chest X-Ray            71046       $640.00   $512.00    $409.60     $0.00
+Physician Consult      99213       $600.00   $350.00      $0.00    $86.40
+
+DENIAL/REMARK CODES
+CO-45: Charge exceeds fee schedule/maximum allowable
+PR-2:  Coinsurance amount — patient responsibility
+OA-23: Payment denied — service not authorized or not precertified
+CO-97: Payment included in allowance for another service (bundling)`;
+
 // ---------------------------------------------------------------------------
 // PAYMENTS_LIVE: set to true to re-enable the $29 checkout button.
 // false = show Coming Soon UI instead. One-line change to go live.
@@ -48,6 +74,7 @@ export default function EobDecoder() {
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showExample, setShowExample] = useState(false);
 
   const FREE_LIMIT = 3;
   const count = getRateCount();
@@ -127,6 +154,29 @@ export default function EobDecoder() {
           onFocus={e => (e.target.style.borderColor = TEAL)}
           onBlur={e => (e.target.style.borderColor = BORDER)}
         />
+        <div className="mt-2">
+          <button
+            onClick={() => setShowExample(!showExample)}
+            className="text-sm text-teal-600 hover:text-teal-800 flex items-center gap-1"
+            type="button"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: TEAL, fontFamily: 'DM Sans, sans-serif' }}
+          >
+            <span>{showExample ? '▼' : '▶'}</span>
+            <span>See example format</span>
+          </button>
+          {showExample && (
+            <div style={{ marginTop: 8, background: '#F8FAFC', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 12 }}>
+              <pre style={{ fontSize: 11, color: '#475569', overflowX: 'auto', whiteSpace: 'pre-wrap', fontFamily: 'monospace', lineHeight: 1.6, margin: 0 }}>{EXAMPLE_EOB}</pre>
+              <button
+                onClick={() => { setText(EXAMPLE_EOB); setShowExample(false); }}
+                style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, color: TEAL, fontFamily: 'DM Sans, sans-serif', textDecoration: 'underline' }}
+                type="button"
+              >
+                Use this example →
+              </button>
+            </div>
+          )}
+        </div>
         <p style={{ fontSize: 12, color: MUTED, marginTop: 4, fontFamily: 'DM Sans, sans-serif' }}>
           Your data is never stored. Each request is processed privately.
         </p>
